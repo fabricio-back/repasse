@@ -386,6 +386,8 @@ export default function Home() {
   const [loadingText, setLoadingText] = useState("");
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
   const [error, setError] = useState("");
+  const [showCounterOffer, setShowCounterOffer] = useState(false);
+  const [counterOfferData, setCounterOfferData] = useState({ value: "", whatsapp: "" });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -610,7 +612,7 @@ export default function Home() {
                 </div>
               )}
               <div className="text-center mb-8">
-                <p className="text-neutral-500 text-sm uppercase tracking-widest mb-2">Proposta Final</p>
+                <p className="text-neutral-500 text-sm uppercase tracking-widest mb-2">Pre Proposta</p>
                 <h2 className="text-2xl font-light text-white mb-1">{quote.modelo}</h2>
                 <div className="flex items-center justify-center gap-2 text-neutral-500 text-sm">
                   <span>{formData.plate}</span> • <span>{formData.km} km</span> • <span>Ano {quote.ano}</span>
@@ -637,13 +639,58 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="danger" onClick={() => alert("Obrigado pelo interesse. Entraremos em contato.")}>
-                  Recusar Oferta
+                <Button variant="danger" onClick={() => setShowCounterOffer(!showCounterOffer)}>
+                  {showCounterOffer ? "Cancelar" : "Recusar Oferta"}
                 </Button>
                 <Button variant="success" onClick={() => setStep(6)}>
                   Aceitar e Agendar
                 </Button>
               </div>
+
+              {showCounterOffer && (
+                <div className="mt-6 p-6 bg-neutral-900/50 border border-neutral-800 rounded-xl animate-in fade-in slide-in-from-top-4 duration-300">
+                  <h3 className="text-lg font-light text-white mb-4">Faça sua Proposta</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider ml-1 block mb-2">
+                        Qual valor você aceita?
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ex: R$ 70.000"
+                        value={counterOfferData.value}
+                        onChange={(e) => setCounterOfferData({ ...counterOfferData, value: e.target.value })}
+                        className="w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-3 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider ml-1 block mb-2">
+                        WhatsApp para contato
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="(51) 99999-9999"
+                        value={counterOfferData.whatsapp}
+                        onChange={(e) => setCounterOfferData({ ...counterOfferData, whatsapp: e.target.value })}
+                        className="w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-3 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all"
+                      />
+                    </div>
+                    <Button 
+                      variant="success" 
+                      className="w-full"
+                      disabled={!counterOfferData.value || !counterOfferData.whatsapp}
+                      onClick={() => {
+                        alert(`✅ Contraproposta enviada!\n\nValor: ${counterOfferData.value}\nWhatsApp: ${counterOfferData.whatsapp}\n\nNosso vendedor entrará em contato em breve.`);
+                        setShowCounterOffer(false);
+                        setCounterOfferData({ value: "", whatsapp: "" });
+                      }}
+                    >
+                      Enviar Contraproposta
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <p className="text-center text-[10px] text-neutral-600 mt-4 max-w-xs mx-auto">
                 *Oferta válida por 48 horas. Sujeita a vistoria física. O valor pode sofrer alterações caso o veículo apresente avarias.
               </p>
