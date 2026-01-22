@@ -263,7 +263,7 @@ const Scheduling = ({ customerData, onSuccess }: {
                   "aspect-square flex items-center justify-center rounded-lg border text-sm font-medium transition-all",
                   !dayData && "invisible",
                   (dayData?.isPast || !dayData?.hasSlots) && "opacity-30 cursor-not-allowed border-neutral-800 text-neutral-700",
-                  dayData && !dayData.isPast && dayData.hasSlots && "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 cursor-pointer"
+                  (!dayData?.isPast && dayData?.hasSlots) && "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 cursor-pointer"
                 )}
               >
                 {dayData?.day}
