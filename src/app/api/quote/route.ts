@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       const ano = veiculo.ano.split('/')[0];
       
       // 3. Algoritmo de Precificação (Privado)
-      const descontoBase = 0.20;
+      const descontoBase = 0.15;
       const descontoKm = (km / 100000) * 0.01;
       let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
       const tetoMaximo = valorFipe * 0.70;
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     const ano = veiculo.ano ? veiculo.ano.split('/')[0] : 'N/A';
 
     // 3. Algoritmo de Precificação (Privado)
-    const descontoBase = 0.20; // 20% margem revenda
+    const descontoBase = 0.15; // 15% margem revenda
     const descontoKm = (km / 100000) * 0.01; // 1% extra a cada 100k km
     
     let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
