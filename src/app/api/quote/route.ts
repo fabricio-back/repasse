@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       
       // 3. Algoritmo de Precificação (Privado)
       const descontoBase = 0.15;
-      const descontoKm = (km / 100000) * 0.01;
+      const descontoKm = (km / 100000) * 0.005;
       let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
       const tetoMaximo = valorFipe * 0.70;
       const propostaFinal = Math.min(valorCalculado, tetoMaximo);
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
 
     // 3. Algoritmo de Precificação (Privado)
     const descontoBase = 0.15; // 15% margem revenda
-    const descontoKm = (km / 100000) * 0.01; // 1% extra a cada 100k km
+    const descontoKm = (km / 100000) * 0.005; // 0,5% extra a cada 100k km
     
     let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
 
