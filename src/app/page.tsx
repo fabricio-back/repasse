@@ -56,9 +56,9 @@ const Button = ({
 }) => {
   const base = "px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    primary: "bg-white text-black hover:bg-neutral-200",
-    outline: "border border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-600 bg-transparent",
-    success: "bg-emerald-600 text-white hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]",
+    primary: "bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg",
+    outline: "border border-neutral-800 text-neutral-400 hover:text-white hover:border-amber-600/50 bg-transparent",
+    success: "bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)]",
     danger: "bg-red-900/20 text-red-400 border border-red-900/50 hover:bg-red-900/40"
   };
   
@@ -303,8 +303,8 @@ const Scheduling = ({ customerData, onSuccess }: {
             ← Escolher outro horário
           </button>
           
-          <div className="mb-6 p-4 bg-emerald-900/20 border border-emerald-900/50 rounded-lg">
-            <div className="text-xs text-emerald-500 uppercase tracking-widest mb-1">Horário Selecionado</div>
+          <div className="mb-6 p-4 bg-amber-900/20 border border-amber-900/50 rounded-lg">
+            <div className="text-xs text-amber-500 uppercase tracking-widest mb-1">Horário Selecionado</div>
             <div className="text-lg font-medium text-white">
               {selectedDay.date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })} • {selectedSlot.display}
             </div>
@@ -367,7 +367,7 @@ const Scheduling = ({ customerData, onSuccess }: {
             {submitMessage && (
               <div className={cn(
                 "p-3 rounded-lg text-sm font-medium",
-                submitMessage.type === 'success' && "bg-emerald-900/20 border border-emerald-900/50 text-emerald-400",
+                submitMessage.type === 'success' && "bg-amber-900/20 border border-amber-900/50 text-amber-400",
                 submitMessage.type === 'error' && "bg-red-900/20 border border-red-900/50 text-red-400"
               )}>
                 {submitMessage.text}
@@ -461,15 +461,18 @@ export default function Home() {
       <div className="w-full max-w-2xl">
         {/* Header Minimalista */}
         <header className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">Avaliação Inteligente</span>
+          <div className="mb-6 flex justify-center">
+            <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-16 md:h-20 w-auto" />
+          </div>
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-neutral-900 border border-amber-900/30">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold">Avaliação Justa e Transparente</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-light text-white tracking-tight mb-2">
             Venda seu carro <span className="text-neutral-500">hoje.</span>
           </h1>
           <p className="text-neutral-500 text-sm md:text-base max-w-md mx-auto">
-            Algoritmo justo. Proposta instantânea. Pagamento à vista.
+            Proposta instantânea. Pagamento à vista. Atendimento no RS.
           </p>
         </header>
 
@@ -505,7 +508,7 @@ export default function Home() {
                 autoFocus
               />
               <div className="flex justify-end pt-4">
-                <Button onClick={handleNext} disabled={!formData.name.length}>
+                <Button onClick={handleNext} disabled={!formData.name.trim() || formData.name.trim().length < 3}>
                   Continuar <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -526,7 +529,7 @@ export default function Home() {
                   autoFocus
                 />
                 {formData.plate.length === 7 && (
-                  <div className="absolute right-4 top-9 text-emerald-500 animate-in fade-in zoom-in duration-300">
+                  <div className="absolute right-4 top-9 text-amber-500 animate-in fade-in zoom-in duration-300">
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                 )}
@@ -589,7 +592,7 @@ export default function Home() {
           {step === 4 && (
             <div className="flex flex-col items-center justify-center py-10 animate-in fade-in duration-700">
               <div className="relative">
-                <div className="absolute inset-0 bg-emerald-500 blur-xl opacity-20 rounded-full"></div>
+                <div className="absolute inset-0 bg-amber-500 blur-xl opacity-20 rounded-full"></div>
                 <Loader2 className="w-12 h-12 text-white animate-spin relative z-10" />
               </div>
               <p className="mt-6 text-neutral-400 font-mono text-sm animate-pulse">
@@ -625,7 +628,7 @@ export default function Home() {
                     <p className="text-neutral-400 line-through text-lg">{formatCurrency(quote.valorFipe)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-emerald-500 text-xs font-bold uppercase tracking-wider mb-1">Oferta à vista</p>
+                    <p className="text-amber-500 text-xs font-bold uppercase tracking-wider mb-1">Oferta à vista</p>
                     <p className="text-4xl md:text-5xl font-bold text-white tracking-tighter">
                       {formatCurrency(quote.valorProposta)}
                     </p>
@@ -668,7 +671,8 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-12 text-center text-neutral-600 text-xs">
-          <p>© 2026 AutoBid System. Design by Vértice Growth principles.</p>
+          <p>© 2026 Repasse Auto RS. Todos os direitos reservados.</p>
+          <p className="mt-2 text-neutral-700">Atendimento especializado no Rio Grande do Sul</p>
         </footer>
       </div>
     </div>

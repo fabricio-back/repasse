@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 150">
+  <!-- REPASSE AUTO (texto cinza) -->
+  <text x="10" y="50" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#C0C0C0" letter-spacing="5">REPASSE AUTO</text>
+  
+  <!-- Linhas douradas com degradê -->
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Três linhas horizontais com degradê -->
+  <rect x="15" y="75" width="380" height="4" fill="url(#goldGrad)" rx="2"/>
+  <rect x="15" y="88" width="420" height="4" fill="url(#goldGrad)" rx="2"/>
+  <rect x="15" y="101" width="460" height="4" fill="url(#goldGrad)" rx="2"/>
+  
+  <!-- RS (texto dourado grande) -->
+  <text x="520" y="130" font-family="Arial, sans-serif" font-size="100" font-weight="bold" fill="#F59E0B">RS</text>
+</svg>

@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AutoBid - Venda seu carro hoje',
-  description: 'Algoritmo justo. Proposta instantânea. Pagamento à vista.',
+  title: 'Repasse Auto RS - Venda seu carro hoje',
+  description: 'Avaliação justa e transparente. Proposta instantânea. Pagamento à vista. A melhor forma de vender seu veículo no Rio Grande do Sul.',
   icons: {
     icon: '/favicon.svg',
   },
