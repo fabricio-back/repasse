@@ -466,51 +466,32 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-neutral-900">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-950/10 to-transparent pointer-events-none"></div>
-        <div className="container mx-auto px-4 py-16 md:py-24">
+        <div className="container mx-auto px-4 py-16 md:py-24 max-w-6xl">
           <div className="flex justify-center mb-8">
             <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-16 md:h-20 w-auto" />
           </div>
           
-          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            {/* Copy */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/20 border border-amber-900/30">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold">⚡ Venda em até 50 minutos</span>
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white tracking-tight leading-tight">
-                Venda seu carro em até <span className="text-amber-500">50 minutos</span> com segurança total
-              </h1>
-              
-              <p className="text-lg text-neutral-400 leading-relaxed">
-                Esqueça a exposição de dados, os curiosos e o medo de golpes. Na Repasse Auto RS, conectamos você à melhor negociação em tempo recorde.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <a href="#cotacao" className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50 text-center">
-                  Quero Vender Meu Carro Agora
-                </a>
-                <a href="#seguranca" className="px-8 py-4 border border-neutral-800 text-neutral-300 rounded-lg font-medium hover:border-amber-600/50 hover:text-white transition-all text-center">
-                  Como Funciona
-                </a>
-              </div>
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/20 border border-amber-900/30">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold">⚡ Venda em até 50 minutos</span>
             </div>
             
-            {/* Vídeo */}
-            <div className="relative">
-              <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
-                <iframe 
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/ItsJy6_CMNM"
-                  title="Venda em 50 minutos"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className="absolute -bottom-4 -right-4 bg-amber-500 text-neutral-950 px-6 py-3 rounded-lg font-bold text-sm shadow-xl">
-                ⏱️ 50 Min de Venda!
-              </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white tracking-tight leading-tight">
+              Venda seu carro em até <span className="text-amber-500">50 minutos</span> com segurança total
+            </h1>
+            
+            <p className="text-lg text-neutral-400 leading-relaxed">
+              Esqueça a exposição de dados, os curiosos e o medo de golpes. Na Repasse Auto RS, conectamos você à melhor negociação em tempo recorde.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+              <a href="#cotacao" className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50 text-center">
+                Quero Vender Meu Carro Agora
+              </a>
+              <a href="#seguranca" className="px-8 py-4 border border-neutral-800 text-neutral-300 rounded-lg font-medium hover:border-amber-600/50 hover:text-white transition-all text-center">
+                Como Funciona
+              </a>
             </div>
           </div>
         </div>
@@ -601,12 +582,21 @@ export default function Home() {
               </ul>
             </div>
           </div>
+          
+          <div className="text-center mt-12">
+            <a href="#cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50">
+              Receber Minha Oferta Agora
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Comparação */}
       <section className="py-20 border-b border-neutral-900">
-        <div className="container mx-auto px-4 max-w-4xl">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
               Por que não somos um classificado comum?
@@ -641,20 +631,49 @@ export default function Home() {
               </tbody>
             </table>
           </div>
+          
+          <div className="text-center mt-12">
+            <a href="#cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50">
+              Vender Meu Carro com Segurança
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Wizard de Cotação */}
       <section id="cotacao" className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="w-full max-w-2xl mx-auto">
-            {/* Header Minimalista */}
-            <header className="mb-12 text-center">
-              <h2 className="text-3xl md:text-4xl font-light text-white tracking-tight mb-4">
-                Receba sua proposta <span className="text-amber-500">agora</span>
-              </h2>
-              <p className="text-neutral-500">Preencha os dados e veja quanto seu carro vale em tempo real</p>
-            </header>
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* Header */}
+          <header className="mb-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-light text-white tracking-tight mb-4">
+              Receba sua proposta <span className="text-amber-500">agora</span>
+            </h2>
+            <p className="text-neutral-500 text-lg">Preencha os dados e veja quanto seu carro vale em tempo real</p>
+          </header>
+
+          <div className="grid lg:grid-cols-[350px_1fr] gap-8 items-start">
+            {/* Vídeo Vertical */}
+            <div className="relative mx-auto lg:mx-0">
+              <div className="relative w-full max-w-[350px] mx-auto" style={{ aspectRatio: '9/16' }}>
+                <div className="absolute inset-0 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
+                  <iframe 
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/ItsJy6_CMNM"
+                    title="Venda em 50 minutos"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <span className="text-amber-500 text-sm font-semibold">⏱️ Veja como funciona!</span>
+                </div>
+              </div>
+            </div>
 
             {/* Wizard Container */}
             <div className="relative bg-neutral-900/20 backdrop-blur-sm border border-neutral-800 rounded-2xl p-6 md:p-10 shadow-2xl overflow-hidden min-h-[400px] flex flex-col justify-center">
@@ -896,14 +915,14 @@ export default function Home() {
             />
           )}
 
-          </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-neutral-900 py-12">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 max-w-6xl text-center">
           <div className="mb-6">
             <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-12 w-auto mx-auto opacity-50" />
           </div>
