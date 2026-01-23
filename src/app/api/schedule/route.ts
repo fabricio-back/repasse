@@ -14,9 +14,17 @@ interface ScheduleRequest {
 }
 
 const getCalendarAuth = () => {
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
+  
+  // Remove aspas se existirem
+  privateKey = privateKey.replace(/^["']|["']$/g, '');
+  
+  // Substitui \n literais por quebras de linha reais
+  privateKey = privateKey.replace(/\\n/g, '\n');
+
   const credentials = {
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    private_key: privateKey,
   };
 
   return new google.auth.JWT(
