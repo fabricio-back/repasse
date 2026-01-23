@@ -461,24 +461,200 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-neutral-800 selection:text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-neutral-800 selection:text-white">
       
-      <div className="w-full max-w-2xl">
-        {/* Header Minimalista */}
-        <header className="mb-12 text-center">
-          <div className="mb-6 flex justify-center">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden border-b border-neutral-900">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-950/10 to-transparent pointer-events-none"></div>
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <div className="flex justify-center mb-8">
             <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-16 md:h-20 w-auto" />
           </div>
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-neutral-900 border border-amber-900/30">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            <span className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold">Avaliação Justa e Transparente</span>
+          
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            {/* Copy */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/20 border border-amber-900/30">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400/80 font-semibold">⚡ Venda em até 50 minutos</span>
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white tracking-tight leading-tight">
+                Venda seu carro em até <span className="text-amber-500">50 minutos</span> com segurança total
+              </h1>
+              
+              <p className="text-lg text-neutral-400 leading-relaxed">
+                Esqueça a exposição de dados, os curiosos e o medo de golpes. Na Repasse Auto RS, conectamos você à melhor negociação em tempo recorde.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <a href="#cotacao" className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50 text-center">
+                  Quero Vender Meu Carro Agora
+                </a>
+                <a href="#seguranca" className="px-8 py-4 border border-neutral-800 text-neutral-300 rounded-lg font-medium hover:border-amber-600/50 hover:text-white transition-all text-center">
+                  Como Funciona
+                </a>
+              </div>
+            </div>
+            
+            {/* Vídeo */}
+            <div className="relative">
+              <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
+                {/* Placeholder - substitua pelo link real do vídeo */}
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/SEU_VIDEO_ID_AQUI"
+                  title="Venda em 50 minutos"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className="absolute -bottom-4 -right-4 bg-amber-500 text-neutral-950 px-6 py-3 rounded-lg font-bold text-sm shadow-xl">
+                ⏱️ 50 Min de Venda!
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-light text-white tracking-tight mb-2">
-            Venda seu carro <span className="text-neutral-500">hoje.</span>
-          </h1>
-          <p className="text-neutral-500 text-sm md:text-base max-w-md mx-auto">
-            Proposta instantânea. Pagamento à vista. Atendimento no RS.
-          </p>
+        </div>
+      </section>
+
+      {/* Benefícios */}
+      <section id="seguranca" className="py-20 border-b border-neutral-900">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
+              Por que escolher a Repasse Auto RS?
+            </h2>
+            <p className="text-neutral-500 text-lg max-w-2xl mx-auto">
+              O "faroeste" das plataformas abertas ficou para trás. Vender um veículo não deveria ser motivo de estresse.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Segurança */}
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">🛡️ Sua Segurança em Primeiro Lugar</h3>
+              <ul className="space-y-2 text-neutral-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Privacidade total - seus dados nunca ficam expostos</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Filtro anti-golpe - intermediamos 100% da conversa</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Pagamento garantido - sem surpresas</span>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Velocidade */}
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">⚡ Velocidade Imbatível</h3>
+              <ul className="space-y-2 text-neutral-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Venda concluída em até 50 minutos</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Conexão direta com melhor negócio</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>O relógio corre a seu favor</span>
+                </li>
+              </ul>
+            </div>
+            
+            {/* Zero Burocracia */}
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">📝 Zero Burocracia</h3>
+              <ul className="space-y-2 text-neutral-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Nós fazemos o trabalho sujo</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Papelada e trâmites legais gerenciados</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-500 mt-1">✓</span>
+                  <span>Você só assina e recebe</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparação */}
+      <section className="py-20 border-b border-neutral-900">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
+              Por que não somos um classificado comum?
+            </h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-neutral-800">
+                  <th className="text-left py-4 px-6 text-neutral-400 font-medium">Classificados de Internet</th>
+                  <th className="text-left py-4 px-6 text-amber-500 font-medium">Repasse Auto RS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-800">
+                <tr className="hover:bg-neutral-900/30">
+                  <td className="py-4 px-6 text-neutral-500">Exposição total dos seus dados e telefone</td>
+                  <td className="py-4 px-6 text-white font-medium">✓ Seus dados protegidos e ocultos</td>
+                </tr>
+                <tr className="hover:bg-neutral-900/30">
+                  <td className="py-4 px-6 text-neutral-500">Dias (ou semanas) perdidos com curiosos</td>
+                  <td className="py-4 px-6 text-white font-medium">✓ Venda realizada em até 50 minutos</td>
+                </tr>
+                <tr className="hover:bg-neutral-900/30">
+                  <td className="py-4 px-6 text-neutral-500">Risco constante de fraudes e golpes</td>
+                  <td className="py-4 px-6 text-white font-medium">✓ Ambiente 100% controlado e seguro</td>
+                </tr>
+                <tr className="hover:bg-neutral-900/30">
+                  <td className="py-4 px-6 text-neutral-500">Você cuida de toda a papelada chata</td>
+                  <td className="py-4 px-6 text-white font-medium">✓ Nós resolvemos toda a burocracia</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Wizard de Cotação */}
+      <section id="cotacao" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="w-full max-w-2xl mx-auto"
+        {/* Header Minimalista */}
+        <header className="mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-light text-white tracking-tight mb-4">
+            Receba sua proposta <span className="text-amber-500">agora</span>
+          </h2>
+          <p className="text-neutral-500">Preencha os dados e veja quanto seu carro vale em tempo real</p>
         </header>
 
         {/* Wizard Container */}
@@ -722,13 +898,19 @@ export default function Home() {
           )}
 
         </div>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="mt-12 text-center text-neutral-600 text-xs">
-          <p>© 2026 Repasse Auto RS. Todos os direitos reservados.</p>
-          <p className="mt-2 text-neutral-700">Atendimento especializado no Rio Grande do Sul</p>
-        </footer>
-      </div>
+      {/* Footer */}
+      <footer className="border-t border-neutral-900 py-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mb-6">
+            <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-12 w-auto mx-auto opacity-50" />
+          </div>
+          <p className="text-neutral-600 text-sm">© 2026 Repasse Auto RS. Todos os direitos reservados.</p>
+          <p className="mt-2 text-neutral-700 text-xs">Atendimento especializado no Rio Grande do Sul</p>
+        </div>
+      </footer>
     </div>
   );
 }
