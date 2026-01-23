@@ -647,17 +647,17 @@ export default function Home() {
       {/* Wizard de Cotação */}
       <section id="cotacao" className="py-20">
         <div className="container mx-auto px-4">
-          <div className="w-full max-w-2xl mx-auto"
-        {/* Header Minimalista */}
-        <header className="mb-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-light text-white tracking-tight mb-4">
-            Receba sua proposta <span className="text-amber-500">agora</span>
-          </h2>
-          <p className="text-neutral-500">Preencha os dados e veja quanto seu carro vale em tempo real</p>
-        </header>
+          <div className="w-full max-w-2xl mx-auto">
+            {/* Header Minimalista */}
+            <header className="mb-12 text-center">
+              <h2 className="text-3xl md:text-4xl font-light text-white tracking-tight mb-4">
+                Receba sua proposta <span className="text-amber-500">agora</span>
+              </h2>
+              <p className="text-neutral-500">Preencha os dados e veja quanto seu carro vale em tempo real</p>
+            </header>
 
-        {/* Wizard Container */}
-        <div className="relative bg-neutral-900/20 backdrop-blur-sm border border-neutral-800 rounded-2xl p-6 md:p-10 shadow-2xl overflow-hidden min-h-[400px] flex flex-col justify-center">
+            {/* Wizard Container */}
+            <div className="relative bg-neutral-900/20 backdrop-blur-sm border border-neutral-800 rounded-2xl p-6 md:p-10 shadow-2xl overflow-hidden min-h-[400px] flex flex-col justify-center">
           
           {/* Progress Bar Sutil */}
           {step < 6 && (
@@ -896,7 +896,8 @@ export default function Home() {
             />
           )}
 
-        </div>
+          </div>
+          </div>
         </div>
       </section>
 
