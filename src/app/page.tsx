@@ -85,8 +85,9 @@ interface DayData {
 }
 
 // --- COMPONENTE DE AGENDAMENTO ---
-const Scheduling = ({ customerData, onSuccess }: { 
+const Scheduling = ({ customerData, quoteData, onSuccess }: { 
   customerData: { name: string; plate: string; km: string };
+  quoteData?: { valorFipe: number; valorProposta: number };
   onSuccess: () => void;
 }) => {
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
@@ -205,7 +206,9 @@ const Scheduling = ({ customerData, onSuccess }: {
           email: formData.email,
           phone: formData.phone,
           readableSlot: `${selectedDay?.date.toLocaleDateString('pt-BR')} ${selectedSlot.display}`,
-          description: `Vistoria de veículo\nPlaca: ${customerData.plate}\nKM: ${customerData.km}`
+          description: `Vistoria de veículo\nPlaca: ${customerData.plate}\nKM: ${customerData.km}`,
+          valorFipe: quoteData?.valorFipe,
+          valorProposta: quoteData?.valorProposta
         })
       });
 
@@ -705,6 +708,10 @@ export default function Home() {
                 plate: formData.plate,
                 km: formData.km
               }}
+              quoteData={quote ? {
+                valorFipe: quote.valorFipe,
+                valorProposta: quote.valorProposta
+              } : undefined}
               onSuccess={() => {
                 alert(`✅ Vistoria agendada com sucesso!\n\nVerifique seu email para detalhes do agendamento.`);
                 setStep(1);

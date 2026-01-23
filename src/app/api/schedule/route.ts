@@ -9,6 +9,8 @@ interface ScheduleRequest {
   phone: string;
   readableSlot: string;
   description?: string;
+  valorFipe?: number;
+  valorProposta?: number;
 }
 
 const getCalendarAuth = () => {
@@ -28,7 +30,13 @@ const getCalendarAuth = () => {
 export async function POST(req: Request) {
   try {
     const body: ScheduleRequest = await req.json();
-    const { startIso, endIso, name, email, phone, readableSlot, description } = body;
+    const { startIso, endIso, name, email, phone, readableSlot, description, valorFipe, valorProposta } = body;
+
+    // Formatação de valores
+    const formatCurrency = (value?: number) => {
+      if (!value) return 'N/A';
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    };
 
     // Validação básica
     if (!startIso || !endIso || !name || !email || !phone) {
@@ -60,7 +68,7 @@ export async function POST(req: Request) {
 
     const event = {
       summary: `Vistoria - ${name}`,
-      description: `Cliente: ${name}\nEmail: ${email}\nTelefone: ${phone}\n\n${description || 'Vistoria de veículo agendada'}`,
+      description: `Cliente: ${name}\nEmail: ${email}\nTelefone: ${phone}\n\n${description || 'Vistoria de veículo agendada'}\n\n=== VALORES ===\nTabela FIPE: ${formatCurrency(valorFipe)}\nProposta: ${formatCurrency(valorProposta)}`,
       start: {
         dateTime: startIso,
         timeZone: 'America/Sao_Paulo',
