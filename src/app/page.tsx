@@ -500,10 +500,9 @@ export default function Home() {
             {/* Vídeo */}
             <div className="relative">
               <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
-                {/* Placeholder - substitua pelo link real do vídeo */}
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/SEU_VIDEO_ID_AQUI"
+                  src="https://www.youtube.com/embed/ItsJy6_CMNM"
                   title="Venda em 50 minutos"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
