@@ -1,17 +1,26 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
-// Configuração do Google Calendar
+// Configuração do Google Calendar com processamento robusto
 const getCalendarAuth = () => {
-  const credentials = {
-    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  };
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
+  
+  if (!privateKey) {
+    throw new Error('GOOGLE_PRIVATE_KEY não está configurada');
+  }
+  
+  // Mesmo processamento do schedule.ts
+  privateKey = privateKey.trim().replace(/^["']|["']$/g, '');
+  privateKey = privateKey.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
+  
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error('Formato de chave privada inválido');
+  }
 
   return new google.auth.JWT(
-    credentials.client_email,
+    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     undefined,
-    credentials.private_key,
+    privateKey,
     ['https://www.googleapis.com/auth/calendar.readonly']
   );
 };
@@ -71,21 +80,20 @@ export async function GET() {
       // Horários da manhã (09:00-11:00)
       for (let hour = WORK_HOURS.morning.start; hour < WORK_HOURS.morning.end && morningSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
         const slotStart = new Date(checkDate);
-        slotStart.setHours(hour + 3, 0, 0, 0); // +3 para UTC
+        slotStart.setHours(hour, 0, 0, 0);
         
         const slotEnd = new Date(slotStart);
         slotEnd.setMinutes(slotEnd.getMinutes() + WORK_HOURS.slotDuration);
 
+        // Pula se o slot já passou
         if (slotStart < now) continue;
 
+        // Verifica se há conflito com eventos existentes
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          return (
-            (slotStart >= busyStart && slotStart < busyEnd) ||
-            (slotEnd > busyStart && slotEnd <= busyEnd) ||
-            (slotStart <= busyStart && slotEnd >= busyEnd)
-          );
+          // Há conflito se os períodos se sobrepõem
+          return slotStart < busyEnd && slotEnd > busyStart;
         });
 
         if (!isOccupied) {
@@ -101,21 +109,20 @@ export async function GET() {
       // Horários da tarde (14:00-18:00)
       for (let hour = WORK_HOURS.afternoon.start; hour < WORK_HOURS.afternoon.end && afternoonSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
         const slotStart = new Date(checkDate);
-        slotStart.setHours(hour + 3, 0, 0, 0);
+        slotStart.setHours(hour, 0, 0, 0);
         
         const slotEnd = new Date(slotStart);
         slotEnd.setMinutes(slotEnd.getMinutes() + WORK_HOURS.slotDuration);
 
+        // Pula se o slot já passou
         if (slotStart < now) continue;
 
+        // Verifica se há conflito com eventos existentes
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          return (
-            (slotStart >= busyStart && slotStart < busyEnd) ||
-            (slotEnd > busyStart && slotEnd <= busyEnd) ||
-            (slotStart <= busyStart && slotEnd >= busyEnd)
-          );
+          // Há conflito se os períodos se sobrepõem
+          return slotStart < busyEnd && slotEnd > busyStart;
         });
 
         if (!isOccupied) {

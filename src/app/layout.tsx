@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'Repasse Auto RS - Venda seu carro hoje',
   description: 'Avaliação justa e transparente. Proposta instantânea. Pagamento à vista. A melhor forma de vender seu veículo no Rio Grande do Sul.',
   icons: {
-    icon: '/favicon.svg',
+    icon: "C:\Users\fabri\OneDrive\Desktop\Site Repasse\site-repasse\img\repasseautors.png",
   },
 }
 
