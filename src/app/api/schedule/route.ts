@@ -16,32 +16,33 @@ interface ScheduleRequest {
 const getCalendarAuth = () => {
   let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
   
+  if (!privateKey) {
+    throw new Error('GOOGLE_PRIVATE_KEY não está configurada');
+  }
+  
   // Tratamento robusto da chave privada
-  // 1. Remove aspas duplas ou simples no início e fim
+  // 1. Remove espaços e aspas externas
   privateKey = privateKey.trim().replace(/^["']|["']$/g, '');
   
-  // 2. Substitui \n literais (escapados) por quebras de linha reais
-  privateKey = privateKey.replace(/\\n/g, '\n');
+  // 2. Substitui TODOS os tipos de escape de \n por quebra real
+  // Trata \\n (duplo escape) primeiro, depois \n (escape simples)
+  privateKey = privateKey.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
   
-  // 3. Se ainda não começar com -----BEGIN, pode estar com escape extra
-  if (!privateKey.startsWith('-----BEGIN')) {
-    privateKey = privateKey.replace(/\\\\n/g, '\n');
-  }
-
-  // Validação básica
+  // Validação da estrutura
   if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-    throw new Error('Formato de chave privada inválido - faltando header');
+    throw new Error('Formato de chave privada inválido - faltando header BEGIN');
+  }
+  if (!privateKey.includes('-----END PRIVATE KEY-----')) {
+    throw new Error('Formato de chave privada inválido - faltando footer END');
   }
 
-  const credentials = {
-    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    private_key: privateKey,
-  };
+  console.log('🔑 Chave privada carregada com sucesso');
+  console.log('📧 Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 
   return new google.auth.JWT(
-    credentials.client_email,
+    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     undefined,
-    credentials.private_key,
+    privateKey,
     ['https://www.googleapis.com/auth/calendar.events']
   );
 };
