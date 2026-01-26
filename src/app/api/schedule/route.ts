@@ -16,11 +16,22 @@ interface ScheduleRequest {
 const getCalendarAuth = () => {
   let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
   
-  // Remove aspas se existirem
-  privateKey = privateKey.replace(/^["']|["']$/g, '');
+  // Tratamento robusto da chave privada
+  // 1. Remove aspas duplas ou simples no início e fim
+  privateKey = privateKey.trim().replace(/^["']|["']$/g, '');
   
-  // Substitui \n literais por quebras de linha reais
+  // 2. Substitui \n literais (escapados) por quebras de linha reais
   privateKey = privateKey.replace(/\\n/g, '\n');
+  
+  // 3. Se ainda não começar com -----BEGIN, pode estar com escape extra
+  if (!privateKey.startsWith('-----BEGIN')) {
+    privateKey = privateKey.replace(/\\\\n/g, '\n');
+  }
+
+  // Validação básica
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error('Formato de chave privada inválido - faltando header');
+  }
 
   const credentials = {
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -126,6 +137,13 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('Erro ao criar agendamento:', error);
+    
+    // Log detalhado para debugging de erro DECODER
+    if (error.message?.includes('DECODER')) {
+      console.error('❌ ERRO DE DECODER - Problema com a chave privada do Google');
+      console.error('Verifique GOOGLE_PRIVATE_KEY no .env.local');
+    }
+    
     return NextResponse.json(
       {
         ok: false,
