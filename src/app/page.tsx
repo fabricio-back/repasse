@@ -429,6 +429,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [showCounterOffer, setShowCounterOffer] = useState(false);
   const [counterOfferData, setCounterOfferData] = useState({ value: "", whatsapp: "" });
+  const [showCookieBanner, setShowCookieBanner] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -436,6 +437,25 @@ export default function Home() {
     km: "",
     city: ""
   });
+
+  // Verifica consentimento LGPD ao carregar
+  useEffect(() => {
+    const consent = localStorage.getItem('lgpd-consent');
+    if (!consent) {
+      // Mostra banner após 2 segundos
+      setTimeout(() => setShowCookieBanner(true), 2000);
+    }
+  }, []);
+
+  const handleAcceptCookies = () => {
+    localStorage.setItem('lgpd-consent', 'accepted');
+    setShowCookieBanner(false);
+  };
+
+  const handleRejectCookies = () => {
+    localStorage.setItem('lgpd-consent', 'rejected');
+    setShowCookieBanner(false);
+  };
 
   const handleNext = () => setStep(prev => prev + 1);
   const handleBack = () => setStep(prev => prev - 1);
@@ -968,6 +988,46 @@ export default function Home() {
           <p className="mt-2 text-neutral-700 text-xs">Atendimento especializado no Rio Grande do Sul</p>
         </div>
       </footer>
+
+      {/* Banner LGPD */}
+      {showCookieBanner && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500">
+          <div className="bg-neutral-900 border-t border-neutral-800 shadow-2xl">
+            <div className="container mx-auto px-4 py-6 max-w-6xl">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Privacidade e Cookies
+                  </h3>
+                  <p className="text-neutral-400 text-sm leading-relaxed">
+                    Utilizamos cookies e coletamos dados para melhorar sua experiência, personalizar conteúdo e anúncios (Google Ads e Meta), 
+                    e analisar o tráfego do site. Os dados fornecidos nos formulários são utilizados exclusivamente para processamento de 
+                    cotações e agendamentos, conforme nossa Política de Privacidade e a LGPD (Lei nº 13.709/2018).
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  <button
+                    onClick={handleRejectCookies}
+                    className="px-6 py-2.5 border border-neutral-700 text-neutral-400 rounded-lg hover:border-neutral-600 hover:text-white transition-all text-sm font-medium"
+                  >
+                    Recusar
+                  </button>
+                  <button
+                    onClick={handleAcceptCookies}
+                    className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg hover:from-amber-500 hover:to-amber-400 transition-all text-sm font-medium shadow-lg"
+                  >
+                    Aceitar e Continuar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
