@@ -97,29 +97,21 @@ export async function POST(req: Request) {
         dateTime: endIso,
         timeZone: 'America/Sao_Paulo',
       },
-      attendees: [
-        { email: email },
-      ],
+      // Attendees removidos - Service Account não pode convidar sem Domain-Wide Delegation
+      // O email do cliente está na descrição para referência
       reminders: {
         useDefault: false,
         overrides: [
-          { method: 'email', minutes: 24 * 60 },
           { method: 'popup', minutes: 30 },
+          { method: 'popup', minutes: 1440 }, // 1 dia antes
         ],
-      },
-      conferenceData: {
-        createRequest: {
-          requestId: `meet-${Date.now()}`,
-          conferenceSolutionKey: { type: 'hangoutsMeet' },
-        },
       },
     };
 
     const response = await calendar.events.insert({
       calendarId: process.env.GOOGLE_CALENDAR_ID,
       requestBody: event,
-      conferenceDataVersion: 1,
-      sendUpdates: 'all',
+      sendUpdates: 'none', // Alterado de 'all' para 'none' - sem envio automático
     });
 
     console.log('✅ Agendamento criado:', {
