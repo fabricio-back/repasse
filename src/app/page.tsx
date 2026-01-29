@@ -542,7 +542,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-amber-950/10 to-transparent pointer-events-none"></div>
         <div className="container mx-auto px-6 sm:px-4 py-16 md:py-24 max-w-6xl">
           <div className="flex justify-center mb-8">
-            <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-16 md:h-20 w-auto" />
+            <img src="/logo-repasse.png" alt="Repasse Auto RS - Compra e venda de veículos usados em Porto Alegre e região" className="h-16 md:h-20 w-auto" loading="eager" width="auto" height="80" />
           </div>
           
           <div className="text-center space-y-6 max-w-4xl mx-auto">
@@ -560,10 +560,10 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
-              <a href="#cotacao" className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50 text-center">
+              <a href="#cotacao" className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-500 text-white rounded-lg font-medium hover:from-amber-500 hover:to-amber-400 transition-all shadow-lg hover:shadow-amber-500/50 text-center" aria-label="Solicitar cotação para vender meu carro">
                 Quero Vender Meu Carro Agora
               </a>
-              <a href="#seguranca" className="px-8 py-4 border border-neutral-800 text-neutral-300 rounded-lg font-medium hover:border-amber-600/50 hover:text-white transition-all text-center">
+              <a href="#seguranca" className="px-8 py-4 border border-neutral-800 text-neutral-300 rounded-lg font-medium hover:border-amber-600/50 hover:text-white transition-all text-center" aria-label="Saiba como funciona o processo de venda">
                 Como Funciona
               </a>
             </div>
@@ -585,7 +585,7 @@ export default function Home() {
           
           <div className="grid md:grid-cols-3 gap-8">
             {/* Segurança */}
-            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+            <article className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
               <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -606,10 +606,10 @@ export default function Home() {
                   <span>Pagamento garantido - sem surpresas</span>
                 </li>
               </ul>
-            </div>
+            </article>
             
             {/* Velocidade */}
-            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+            <article className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
               <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -630,10 +630,10 @@ export default function Home() {
                   <span>O relógio corre a seu favor</span>
                 </li>
               </ul>
-            </div>
+            </article>
             
             {/* Zero Burocracia */}
-            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
+            <article className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-8 hover:border-amber-900/50 transition-all">
               <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -654,7 +654,7 @@ export default function Home() {
                   <span>Você só assina e recebe</span>
                 </li>
               </ul>
-            </div>
+            </article>
           </div>
           
           <div className="text-center mt-12">
@@ -759,15 +759,16 @@ export default function Home() {
 
           <div className="grid lg:grid-cols-[350px_1fr] gap-8 items-start">
             {/* Vídeo Vertical */}
-            <div className="relative mx-auto lg:mx-0">
+            <aside className="relative mx-auto lg:mx-0" aria-label="Vídeo explicativo">
               <div className="relative w-full max-w-[350px] mx-auto" style={{ aspectRatio: '9/16' }}>
                 <div className="absolute inset-0 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-2xl">
                   <iframe 
                     className="w-full h-full"
                     src="https://www.youtube.com/embed/ItsJy6_CMNM"
-                    title="Venda em 50 minutos"
+                    title="Vídeo: Como vender seu carro em 50 minutos com segurança na Repasse Auto RS"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                    loading="lazy"
                   ></iframe>
                 </div>
               </div>
@@ -776,7 +777,7 @@ export default function Home() {
                   <span className="text-amber-500 text-sm font-semibold">⏱️ Veja como funciona!</span>
                 </div>
               </div>
-            </div>
+            </aside>
 
             {/* Wizard Container */}
             <div className="relative bg-neutral-900/20 backdrop-blur-sm border border-neutral-800 rounded-2xl p-6 md:p-10 shadow-2xl overflow-hidden min-h-[400px] flex flex-col justify-center">
@@ -1034,7 +1035,7 @@ export default function Home() {
       <footer className="border-t border-neutral-900 py-12 pb-safe">
         <div className="container mx-auto px-6 sm:px-4 max-w-6xl text-center">
           <div className="mb-6">
-            <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-12 w-auto mx-auto opacity-50" />
+            <img src="/logo-repasse.png" alt="Repasse Auto RS - Sua parceira confiável na venda de veículos" className="h-12 w-auto mx-auto opacity-50" loading="lazy" width="auto" height="48" />
           </div>
           <p className="text-neutral-600 text-sm">© 2026 Repasse Auto RS. Todos os direitos reservados.</p>
           <p className="mt-2 text-neutral-700 text-xs">Atendimento especializado no Rio Grande do Sul</p>
