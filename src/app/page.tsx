@@ -37,7 +37,8 @@ const Input = ({ label, ...props }: { label: string; [key: string]: any }) => (
       {label}
     </label>
     <input
-      className="w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-3 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all duration-300"
+      className="w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-3.5 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all duration-300"
+      style={{ fontSize: '16px' }}
       {...props}
     />
   </div>
@@ -54,7 +55,7 @@ const Button = ({
   className?: string;
   [key: string]: any;
 }) => {
-  const base = "px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
+  const base = "px-6 py-3.5 min-h-[44px] rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation";
   const variants = {
     primary: "bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg",
     outline: "border border-neutral-800 text-neutral-400 hover:text-white hover:border-amber-600/50 bg-transparent",
@@ -257,21 +258,22 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       ) : !selectedDay ? (
         <div>
           <div className="mb-4 text-neutral-400 text-sm font-medium uppercase tracking-widest">{calendar.monthName}</div>
-          <div className="grid grid-cols-7 gap-2 mb-4">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
             {weekDays.map((day) => (
               <div key={day} className="text-center text-xs text-neutral-600 font-medium">
                 {day}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {calendar.days.map((dayData, index) => (
               <button
                 key={index}
                 disabled={!dayData || dayData.isPast || !dayData.hasSlots}
                 onClick={() => dayData && dayData.hasSlots && setSelectedDay(dayData)}
+                aria-label={dayData ? `Dia ${dayData.day}${dayData.hasSlots ? ' - disponível' : ' - indisponível'}` : 'vazio'}
                 className={cn(
-                  "aspect-square flex items-center justify-center rounded-lg border text-sm font-medium transition-all",
+                  "aspect-square min-h-[44px] flex items-center justify-center rounded-lg border text-sm font-medium transition-all touch-manipulation",
                   !dayData && "invisible",
                   (dayData?.isPast || !dayData?.hasSlots) && "opacity-30 cursor-not-allowed border-neutral-800 text-neutral-700",
                   (!dayData?.isPast && dayData?.hasSlots) && "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 cursor-pointer"
@@ -286,7 +288,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
         <div>
           <button
             onClick={() => setSelectedDay(null)}
-            className="text-sm text-neutral-500 hover:text-white mb-4 transition-colors"
+            className="text-sm text-neutral-500 hover:text-white mb-4 transition-colors py-2 px-3 -ml-3 rounded touch-manipulation"
+            aria-label="Voltar ao calendário"
           >
             ← Voltar ao calendário
           </button>
@@ -298,7 +301,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               <button
                 key={slot.start}
                 onClick={() => setSelectedSlot(slot)}
-                className="py-4 px-4 rounded-lg border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 transition-all text-sm font-medium"
+                aria-label={`Horário ${slot.display}`}
+                className="py-4 px-4 min-h-[56px] rounded-lg border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 transition-all text-sm font-medium touch-manipulation active:scale-95"
               >
                 {slot.display}
               </button>
@@ -309,7 +313,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
         <div>
           <button
             onClick={() => setSelectedSlot(null)}
-            className="text-sm text-neutral-500 hover:text-white mb-4 transition-colors"
+            className="text-sm text-neutral-500 hover:text-white mb-4 transition-colors py-2 px-3 -ml-3 rounded touch-manipulation"
+            aria-label="Escolher outro horário"
           >
             ← Escolher outro horário
           </button>
@@ -328,16 +333,21 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               </label>
               <input
                 type="email"
+                inputMode="email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={(e) => {
                   setFormData({ ...formData, email: e.target.value });
                   setFormErrors({ ...formErrors, email: '' });
                 }}
                 className={cn(
-                  "w-full bg-neutral-900/50 border rounded-lg px-4 py-3 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all",
+                  "w-full bg-neutral-900/50 border rounded-lg px-4 py-3.5 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all",
                   formErrors.email && "border-red-500"
                 )}
+                style={{ fontSize: '16px' }}
                 placeholder="seu@email.com"
+                aria-label="Seu email"
+                aria-invalid={!!formErrors.email}
               />
               {formErrors.email && <span className="text-xs text-red-400 mt-1">{formErrors.email}</span>}
             </div>
@@ -348,16 +358,21 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               </label>
               <input
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={formData.phone}
                 onChange={(e) => {
                   setFormData({ ...formData, phone: e.target.value });
                   setFormErrors({ ...formErrors, phone: '' });
                 }}
                 className={cn(
-                  "w-full bg-neutral-900/50 border rounded-lg px-4 py-3 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all",
+                  "w-full bg-neutral-900/50 border rounded-lg px-4 py-3.5 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all",
                   formErrors.phone && "border-red-500"
                 )}
+                style={{ fontSize: '16px' }}
                 placeholder="(11) 99999-9999"
+                aria-label="Seu telefone"
+                aria-invalid={!!formErrors.phone}
               />
               {formErrors.phone && <span className="text-xs text-red-400 mt-1">{formErrors.phone}</span>}
             </div>
@@ -397,10 +412,11 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                     <div className="pt-3 border-t border-amber-900/30">
                       <p className="text-xs text-neutral-400 mb-3">Dúvidas ou precisa remarcar? Entre em contato:</p>
                       <a
-                        href="https://api.whatsapp.com/send/?phone=5551993359330&text=Ol%C3%A1%21+Agendei+uma+vistoria+e+gostaria+de+confirmar&type=phone_number&app_absent=0"
+                        href="https://api.whatsapp.com/send/?phone=555194221187&text=Ol%C3%A1%21+Agendei+uma+vistoria+e+gostaria+de+confirmar&type=phone_number&app_absent=0"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-3 min-h-[44px] bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all touch-manipulation active:scale-95"
+                        aria-label="Falar no WhatsApp"
                       >
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -524,7 +540,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-neutral-900">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-950/10 to-transparent pointer-events-none"></div>
-        <div className="container mx-auto px-4 py-16 md:py-24 max-w-6xl">
+        <div className="container mx-auto px-6 sm:px-4 py-16 md:py-24 max-w-6xl">
           <div className="flex justify-center mb-8">
             <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-16 md:h-20 w-auto" />
           </div>
@@ -661,7 +677,8 @@ export default function Home() {
             </h2>
           </div>
           
-          <div className="overflow-x-auto">
+          {/* Tabela Desktop / Cards Mobile */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-neutral-800">
@@ -688,6 +705,34 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
+          </div>
+          
+          {/* Cards para Mobile */}
+          <div className="md:hidden space-y-4">
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-5">
+              <div className="text-red-400 text-sm mb-2">✗ Classificados</div>
+              <div className="text-neutral-500 text-sm mb-3">Exposição total dos seus dados e telefone</div>
+              <div className="text-amber-500 text-sm font-semibold mb-1">✓ Repasse Auto RS</div>
+              <div className="text-white text-sm">Seus dados protegidos e ocultos</div>
+            </div>
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-5">
+              <div className="text-red-400 text-sm mb-2">✗ Classificados</div>
+              <div className="text-neutral-500 text-sm mb-3">Dias (ou semanas) perdidos com curiosos</div>
+              <div className="text-amber-500 text-sm font-semibold mb-1">✓ Repasse Auto RS</div>
+              <div className="text-white text-sm">Venda realizada em até 50 minutos</div>
+            </div>
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-5">
+              <div className="text-red-400 text-sm mb-2">✗ Classificados</div>
+              <div className="text-neutral-500 text-sm mb-3">Risco constante de fraudes e golpes</div>
+              <div className="text-amber-500 text-sm font-semibold mb-1">✓ Repasse Auto RS</div>
+              <div className="text-white text-sm">Ambiente 100% controlado e seguro</div>
+            </div>
+            <div className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-5">
+              <div className="text-red-400 text-sm mb-2">✗ Classificados</div>
+              <div className="text-neutral-500 text-sm mb-3">Você cuida de toda a papelada chata</div>
+              <div className="text-amber-500 text-sm font-semibold mb-1">✓ Repasse Auto RS</div>
+              <div className="text-white text-sm">Nós resolvemos toda a burocracia</div>
+            </div>
           </div>
           
           <div className="text-center mt-12">
@@ -784,6 +829,9 @@ export default function Home() {
                   onChange={handlePlateChange}
                   maxLength={7}
                   autoFocus
+                  inputMode="text"
+                  autoCapitalize="characters"
+                  aria-label="Placa do veículo"
                 />
                 {formData.plate.length === 7 && (
                   <div className="absolute right-4 top-9 text-amber-500 animate-in fade-in zoom-in duration-300">
@@ -817,10 +865,13 @@ export default function Home() {
                 <div className="relative">
                   <Input 
                     label="Quilometragem" 
-                    type="number" 
+                    type="text" 
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Ex: 55000" 
                     value={formData.km}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('km', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('km', e.target.value.replace(/\D/g, ''))}
+                    aria-label="Quilometragem do veículo"
                   />
                   <Gauge className="absolute right-4 top-9 w-4 h-4 text-neutral-600" />
                 </div>
@@ -920,7 +971,7 @@ export default function Home() {
                       />
                     </div>
                     <a
-                      href={`https://api.whatsapp.com/send/?phone=5551993359330&text=Olá!%20Recebi%20uma%20proposta%20para%20meu%20veículo%20mas%20gostaria%20de%20fazer%20uma%20contraproposta.%0A%0A👤%20Nome:%20${encodeURIComponent(formData.name)}%0A🚗%20Veículo:%20${encodeURIComponent(quote?.modelo || '')}%0A📅%20Ano:%20${quote?.ano || ''}%0A🔢%20Placa:%20${formData.plate}%0A%0A💰%20Valor%20proposto%20por%20vocês:%20${encodeURIComponent(formatCurrency(quote?.valorProposta || 0))}%0A💵%20Valor%20que%20eu%20aceito:%20${encodeURIComponent(counterOfferData.value)}`}
+                      href={`https://api.whatsapp.com/send/?phone=555194221187&text=Olá!%20Recebi%20uma%20proposta%20para%20meu%20veículo%20mas%20gostaria%20de%20fazer%20uma%20contraproposta.%0A%0A👤%20Nome:%20${encodeURIComponent(formData.name)}%0A🚗%20Veículo:%20${encodeURIComponent(quote?.modelo || '')}%0A📅%20Ano:%20${quote?.ano || ''}%0A🔢%20Placa:%20${formData.plate}%0A%0A💰%20Valor%20proposto%20por%20vocês:%20${encodeURIComponent(formatCurrency(quote?.valorProposta || 0))}%0A💵%20Valor%20que%20eu%20aceito:%20${encodeURIComponent(counterOfferData.value)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
@@ -980,8 +1031,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-900 py-12">
-        <div className="container mx-auto px-4 max-w-6xl text-center">
+      <footer className="border-t border-neutral-900 py-12 pb-safe">
+        <div className="container mx-auto px-6 sm:px-4 max-w-6xl text-center">
           <div className="mb-6">
             <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-12 w-auto mx-auto opacity-50" />
           </div>
@@ -992,9 +1043,9 @@ export default function Home() {
 
       {/* Banner LGPD */}
       {showCookieBanner && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500">
+        <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500 pb-safe">
           <div className="bg-neutral-900 border-t border-neutral-800 shadow-2xl">
-            <div className="container mx-auto px-4 py-6 max-w-6xl">
+            <div className="container mx-auto px-6 sm:px-4 py-6 max-w-6xl">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
