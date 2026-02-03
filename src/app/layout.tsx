@@ -120,7 +120,6 @@ export default function RootLayout({
         '@id': 'https://repasseautors.com.br/#localbusiness',
         name: 'Repasse Auto RS',
         image: 'https://repasseautors.com.br/logo-repasse.png',
-        '@id': 'https://repasseautors.com.br',
         url: 'https://repasseautors.com.br',
         telephone: '+55-51-9422-1187',
         priceRange: '$$',
