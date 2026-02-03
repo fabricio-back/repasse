@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ArrowRight
 } from 'lucide-react';
+import { SplitText, HighlightText } from '@/components/SplitText';
 
 // --- UTILS ---
 const formatCurrency = (value: number) => {
@@ -552,7 +553,12 @@ export default function Home() {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white tracking-tight leading-tight">
-              Venda seu carro em até <span className="text-amber-500">50 minutos</span> com segurança total
+              <HighlightText 
+                highlightWords={['50', 'minutos', 'segurança', 'total']}
+                highlightClassName="text-amber-500"
+              >
+                Venda seu carro em até 50 minutos com segurança total
+              </HighlightText>
             </h1>
             
             <p className="text-lg text-neutral-400 leading-relaxed">
