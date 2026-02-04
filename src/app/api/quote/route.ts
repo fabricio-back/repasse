@@ -57,11 +57,8 @@ export async function POST(req: Request) {
       const ano = veiculo.ano.split('/')[0];
       
       // 3. Algoritmo de Precificação (Privado)
-      const descontoBase = 0.15;
-      const descontoKm = (km / 100000) * 0.005;
-      let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
-      const tetoMaximo = valorFipe * 0.70;
-      const propostaFinal = Math.min(valorCalculado, tetoMaximo);
+      const descontoFixo = 0.18; // 18% de desconto fixo
+      const propostaFinal = valorFipe * (1 - descontoFixo);
       
       return NextResponse.json({
         sucesso: true,
@@ -100,15 +97,8 @@ export async function POST(req: Request) {
     const ano = veiculo.ano ? veiculo.ano.split('/')[0] : 'N/A';
 
     // 3. Algoritmo de Precificação (Privado)
-    const descontoBase = 0.15; // 15% margem revenda
-    const descontoKm = (km / 100000) * 0.005; // 0,5% extra a cada 100k km
-    
-    let valorCalculado = valorFipe * (1 - (descontoBase + descontoKm));
-
-    // 4. Trava de Segurança (Cap)
-    // A proposta nunca excede 70% da FIPE
-    const tetoMaximo = valorFipe * 0.70;
-    const propostaFinal = Math.min(valorCalculado, tetoMaximo);
+    const descontoFixo = 0.18; // 18% de desconto fixo
+    const propostaFinal = valorFipe * (1 - descontoFixo);
 
     return NextResponse.json({
       sucesso: true,
