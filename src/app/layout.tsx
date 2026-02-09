@@ -271,6 +271,13 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'AW-302827508');
+              
+              // Event snippet for Visualização de página conversion page
+              gtag('event', 'conversion', {
+                'send_to': 'AW-302827508/G6jjCLiDys0ZEPSPs5AB',
+                'value': 1.0,
+                'currency': 'BRL'
+              });
             `,
           }}
         />
