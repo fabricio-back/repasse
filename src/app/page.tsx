@@ -155,12 +155,19 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       const daySlots = slotsByDay[dayKey] || [];
       
+      // Se for hoje, filtra horários que já passaram
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
+      const availableSlotsForDay = isToday 
+        ? daySlots.filter(slot => new Date(slot.start) > now)
+        : daySlots;
+      
       days.push({
         day,
         date,
         isPast,
-        slots: daySlots,
-        hasSlots: daySlots.length > 0
+        slots: availableSlotsForDay,
+        hasSlots: availableSlotsForDay.length > 0
       });
     }
     
@@ -171,6 +178,25 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   }, [availableSlots]);
 
   const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+
+  // Filtra slots do dia selecionado, removendo horários passados se for hoje
+  const filteredSelectedDaySlots = useMemo(() => {
+    if (!selectedDay) return [];
+    
+    const now = new Date();
+    const isToday = selectedDay.date.toDateString() === now.toDateString();
+    
+    if (isToday) {
+      // Se for hoje, filtra horários que já passaram
+      return selectedDay.slots.filter(slot => {
+        const slotTime = new Date(slot.start);
+        return slotTime > now;
+      });
+    }
+    
+    // Se não for hoje, retorna todos os slots
+    return selectedDay.slots;
+  }, [selectedDay]);
 
   const validateForm = () => {
     const errors = { email: '', phone: '' };
@@ -297,18 +323,31 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
           <div className="mb-4 text-lg font-light text-white">
             {selectedDay.date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {selectedDay.slots.map((slot) => (
+          {filteredSelectedDaySlots.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3">
+              {filteredSelectedDaySlots.map((slot) => (
+                <button
+                  key={slot.start}
+                  onClick={() => setSelectedSlot(slot)}
+                  aria-label={`Horário ${slot.display}`}
+                  className="py-4 px-4 min-h-[56px] rounded-lg border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 transition-all text-sm font-medium touch-manipulation active:scale-95"
+                >
+                  {slot.display}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-neutral-500">
+              Não há mais horários disponíveis para hoje.
+              <br />
               <button
-                key={slot.start}
-                onClick={() => setSelectedSlot(slot)}
-                aria-label={`Horário ${slot.display}`}
-                className="py-4 px-4 min-h-[56px] rounded-lg border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 transition-all text-sm font-medium touch-manipulation active:scale-95"
+                onClick={() => setSelectedDay(null)}
+                className="mt-4 text-amber-500 hover:text-amber-400 transition-colors"
               >
-                {slot.display}
+                Escolher outro dia
               </button>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       ) : (
         <div>
