@@ -97,9 +97,13 @@ export async function GET() {
         });
 
         if (!isOccupied) {
+          // Formata com fuso horário de Brasília (UTC-3)
+          const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+          const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+          
           availableSlots.push({
-            start: slotStart.toISOString(),
-            end: slotEnd.toISOString(),
+            start: startISO,
+            end: endISO,
             display: `${String(hour).padStart(2, '0')}:00`
           });
           morningSlots++;
@@ -126,9 +130,13 @@ export async function GET() {
         });
 
         if (!isOccupied) {
+          // Formata com fuso horário de Brasília (UTC-3)
+          const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+          const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+          
           availableSlots.push({
-            start: slotStart.toISOString(),
-            end: slotEnd.toISOString(),
+            start: startISO,
+            end: endISO,
             display: `${String(hour).padStart(2, '0')}:00`
           });
           afternoonSlots++;
@@ -174,9 +182,13 @@ function generateMockSlots() {
       slotEnd.setHours(slotEnd.getHours() + 1);
       
       if (slotStart > now) {
+        // Formata com fuso horário de Brasília (UTC-3)
+        const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+        const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+        
         slots.push({
-          start: slotStart.toISOString(),
-          end: slotEnd.toISOString(),
+          start: startISO,
+          end: endISO,
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
@@ -191,9 +203,13 @@ function generateMockSlots() {
       slotEnd.setHours(slotEnd.getHours() + 1);
       
       if (slotStart > now) {
+        // Formata com fuso horário de Brasília (UTC-3)
+        const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+        const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
+        
         slots.push({
-          start: slotStart.toISOString(),
-          end: slotEnd.toISOString(),
+          start: startISO,
+          end: endISO,
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
