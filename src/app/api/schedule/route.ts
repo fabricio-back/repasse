@@ -86,6 +86,13 @@ export async function POST(req: Request) {
     const auth = getCalendarAuth();
     const calendar = google.calendar({ version: 'v3', auth });
 
+    console.log('📅 Criando evento no Google Calendar:', {
+      startIso,
+      endIso,
+      name,
+      slot: readableSlot
+    });
+
     const event = {
       summary: `Vistoria - ${name}`,
       description: `Cliente: ${name}\nEmail: ${email}\nTelefone: ${phone}\n\n${description || 'Vistoria de veículo agendada'}\n\n=== VALORES ===\nTabela FIPE: ${formatCurrency(valorFipe)}\nProposta: ${formatCurrency(valorProposta)}`,

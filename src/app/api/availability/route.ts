@@ -32,6 +32,19 @@ const WORK_HOURS = {
   maxSlotsPerPeriod: 4
 };
 
+// Helper para criar data ISO com fuso horário de São Paulo
+function toSaoPauloISO(date: Date, hour: number, minute: number = 0): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hourStr = String(hour).padStart(2, '0');
+  const minuteStr = String(minute).padStart(2, '0');
+  
+  // Formato: 2026-02-12T15:00:00-03:00
+  // São Paulo é UTC-3 (sem horário de verão desde 2019)
+  return `${year}-${month}-${day}T${hourStr}:${minuteStr}:00-03:00`;
+}
+
 export async function GET() {
   try {
     if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CALENDAR_ID) {
@@ -97,13 +110,9 @@ export async function GET() {
         });
 
         if (!isOccupied) {
-          // Formata com fuso horário de Brasília (UTC-3)
-          const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-          const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-          
           availableSlots.push({
-            start: startISO,
-            end: endISO,
+            start: toSaoPauloISO(checkDate, hour, 0),
+            end: toSaoPauloISO(checkDate, hour + 1, 0),
             display: `${String(hour).padStart(2, '0')}:00`
           });
           morningSlots++;
@@ -130,13 +139,9 @@ export async function GET() {
         });
 
         if (!isOccupied) {
-          // Formata com fuso horário de Brasília (UTC-3)
-          const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-          const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-          
           availableSlots.push({
-            start: startISO,
-            end: endISO,
+            start: toSaoPauloISO(checkDate, hour, 0),
+            end: toSaoPauloISO(checkDate, hour + 1, 0),
             display: `${String(hour).padStart(2, '0')}:00`
           });
           afternoonSlots++;
@@ -182,13 +187,9 @@ function generateMockSlots() {
       slotEnd.setHours(slotEnd.getHours() + 1);
       
       if (slotStart > now) {
-        // Formata com fuso horário de Brasília (UTC-3)
-        const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-        const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-        
         slots.push({
-          start: startISO,
-          end: endISO,
+          start: toSaoPauloISO(date, hour, 0),
+          end: toSaoPauloISO(date, hour + 1, 0),
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
@@ -203,13 +204,9 @@ function generateMockSlots() {
       slotEnd.setHours(slotEnd.getHours() + 1);
       
       if (slotStart > now) {
-        // Formata com fuso horário de Brasília (UTC-3)
-        const startISO = slotStart.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-        const endISO = slotEnd.toLocaleString('sv-SE', { timeZone: 'America/Sao_Paulo' }).replace(' ', 'T') + '-03:00';
-        
         slots.push({
-          start: startISO,
-          end: endISO,
+          start: toSaoPauloISO(date, hour, 0),
+          end: toSaoPauloISO(date, hour + 1, 0),
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
