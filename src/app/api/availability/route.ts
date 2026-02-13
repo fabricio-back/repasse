@@ -32,6 +32,30 @@ const WORK_HOURS = {
   maxSlotsPerPeriod: 4
 };
 
+// Datas bloqueadas (feriados e dias sem atendimento)
+const BLOCKED_DATES = [
+  '2026-01-01', // Ano Novo
+  '2026-02-02', // Carnaval (segunda)
+  '2026-02-16', // Carnaval
+  '2026-02-18', // Quarta de Cinzas
+  '2026-04-03', // Paixão de Cristo
+  '2026-04-21', // Tiradentes
+  '2026-05-01', // Dia do Trabalho
+  '2026-06-04', // Corpus Christi
+  '2026-09-07', // Independência
+  '2026-09-20', // Revolução Farroupilha
+  '2026-10-12', // Nossa Senhora Aparecida
+  '2026-11-02', // Finados
+  '2026-11-20', // Consciência Negra
+  '2026-12-25', // Natal
+];
+
+// Verifica se uma data está bloqueada
+function isDateBlocked(date: Date): boolean {
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return BLOCKED_DATES.includes(dateStr);
+}
+
 // Helper para criar data ISO com fuso horário de São Paulo
 function toSaoPauloISO(date: Date, hour: number, minute: number = 0): string {
   const year = date.getFullYear();
@@ -86,6 +110,9 @@ export async function GET() {
       // Pula fins de semana
       const dayOfWeek = checkDate.getDay();
       if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+      // Pula datas bloqueadas (feriados)
+      if (isDateBlocked(checkDate)) continue;
 
       let morningSlots = 0;
       let afternoonSlots = 0;
@@ -177,6 +204,9 @@ function generateMockSlots() {
     
     const dayOfWeek = date.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    
+    // Pula datas bloqueadas (feriados)
+    if (isDateBlocked(date)) continue;
     
     // Manhã: 09:00, 10:00
     for (let hour of [9, 10]) {
