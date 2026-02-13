@@ -37,6 +37,7 @@ const BLOCKED_DATES = [
   '2026-01-01', // Ano Novo
   '2026-02-02', // Carnaval (segunda)
   '2026-02-16', // Carnaval
+  '2026-02-17', // Carnaval (terça)
   '2026-02-18', // Quarta de Cinzas
   '2026-04-03', // Paixão de Cristo
   '2026-04-21', // Tiradentes
