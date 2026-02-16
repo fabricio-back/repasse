@@ -28,7 +28,9 @@ const getCalendarAuth = () => {
 const WORK_HOURS = {
   morning: { start: 9, end: 11 },
   afternoon: { start: 14, end: 18 },
-  slotDuration: 60,
+  visitDuration: 30, // Duração da vistoria em minutos
+  interval: 30, // Intervalo entre vistorias em minutos
+  slotDuration: 60, // Total (vistoria + intervalo)
   maxSlotsPerPeriod: 4
 };
 
@@ -140,7 +142,7 @@ export async function GET() {
         if (!isOccupied) {
           availableSlots.push({
             start: toSaoPauloISO(checkDate, hour, 0),
-            end: toSaoPauloISO(checkDate, hour + 1, 0),
+            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration), // Apenas 30 minutos para a vistoria
             display: `${String(hour).padStart(2, '0')}:00`
           });
           morningSlots++;
@@ -169,7 +171,7 @@ export async function GET() {
         if (!isOccupied) {
           availableSlots.push({
             start: toSaoPauloISO(checkDate, hour, 0),
-            end: toSaoPauloISO(checkDate, hour + 1, 0),
+            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration), // Apenas 30 minutos para a vistoria
             display: `${String(hour).padStart(2, '0')}:00`
           });
           afternoonSlots++;
@@ -220,7 +222,7 @@ function generateMockSlots() {
       if (slotStart > now) {
         slots.push({
           start: toSaoPauloISO(date, hour, 0),
-          end: toSaoPauloISO(date, hour + 1, 0),
+          end: toSaoPauloISO(date, hour, 30), // Apenas 30 minutos para a vistoria
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
@@ -237,7 +239,7 @@ function generateMockSlots() {
       if (slotStart > now) {
         slots.push({
           start: toSaoPauloISO(date, hour, 0),
-          end: toSaoPauloISO(date, hour + 1, 0),
+          end: toSaoPauloISO(date, hour, 30), // Apenas 30 minutos para a vistoria
           display: `${String(hour).padStart(2, '0')}:00`
         });
       }
