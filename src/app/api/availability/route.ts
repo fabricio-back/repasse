@@ -158,14 +158,17 @@ export async function GET() {
         if (slotStart < now) continue;
 
         // Verifica se há conflito com eventos existentes
+        // Exige intervalo de 30min APÓS cada evento existente também
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
+          // Adiciona buffer de intervalo ao fim do evento existente
+          const busyEndWithBuffer = new Date(busyEnd.getTime() + WORK_HOURS.interval * 60 * 1000);
+          const hasConflict = slotStart < busyEndWithBuffer && slotEnd > busyStart;
           if (hasConflict) {
             console.log(`❌ Conflito manhã ${hour}:00 SP:`, {
               slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()} (+30min buffer → ${busyEndWithBuffer.toISOString()})`
             });
           }
           return hasConflict;
@@ -193,14 +196,17 @@ export async function GET() {
         if (slotStart < now) continue;
 
         // Verifica se há conflito com eventos existentes
+        // Exige intervalo de 30min APÓS cada evento existente também
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
+          // Adiciona buffer de intervalo ao fim do evento existente
+          const busyEndWithBuffer = new Date(busyEnd.getTime() + WORK_HOURS.interval * 60 * 1000);
+          const hasConflict = slotStart < busyEndWithBuffer && slotEnd > busyStart;
           if (hasConflict) {
             console.log(`❌ Conflito tarde ${hour}:00 SP:`, {
               slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()} (+30min buffer → ${busyEndWithBuffer.toISOString()})`
             });
           }
           return hasConflict;
