@@ -128,7 +128,9 @@ export async function GET() {
     // Gera slots disponíveis
     const availableSlots: any[] = [];
     const currentDate = new Date(now);
-    currentDate.setHours(0, 0, 0, 0);
+    // 03:00 UTC = 00:00 São Paulo (UTC-3)
+    // Garante que getDay() e toSaoPauloDateStr() usem o dia correto em SP
+    currentDate.setHours(3, 0, 0, 0);
 
     for (let day = 0; day < 30; day++) {
       const checkDate = new Date(currentDate);
