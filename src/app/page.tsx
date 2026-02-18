@@ -88,7 +88,7 @@ interface DayData {
 
 // --- COMPONENTE DE AGENDAMENTO ---
 const Scheduling = ({ customerData, quoteData, onSuccess }: { 
-  customerData: { name: string; plate: string; km: string };
+  customerData: { name: string; plate: string; km: string; modelo?: string };
   quoteData?: { valorFipe: number; valorProposta: number };
   onSuccess: () => void;
 }) => {
@@ -452,7 +452,7 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                     <div className="pt-3 border-t border-amber-900/30">
                       <p className="text-xs text-neutral-400 mb-3">Dúvidas ou precisa remarcar? Entre em contato:</p>
                       <a
-                        href="https://api.whatsapp.com/send/?phone=555194221187&text=Ol%C3%A1%21+Agendei+uma+vistoria+e+gostaria+de+confirmar&type=phone_number&app_absent=0"
+                        href={`https://api.whatsapp.com/send/?phone=555194221187&text=${encodeURIComponent(`Olá! Acabei de agendar uma vistoria no Repasse Auto RS.\n\n🚗 Veículo: ${customerData.modelo || 'Não informado'}\n🔢 Placa: ${customerData.plate}\n💰 Valor proposto: ${quoteData ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(quoteData.valorProposta) : 'A consultar'}\n📅 Data: ${submitMessage?.scheduledDate}\n🕐 Horário: ${submitMessage?.scheduledTime}`)}&type=phone_number&app_absent=0`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-3 min-h-[44px] bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all touch-manipulation active:scale-95"
@@ -1056,7 +1056,8 @@ export default function Home() {
               customerData={{
                 name: formData.name,
                 plate: formData.plate,
-                km: formData.km
+                km: formData.km,
+                modelo: quote?.modelo
               }}
               quoteData={quote ? {
                 valorFipe: quote.valorFipe,
