@@ -90,16 +90,25 @@ export async function GET() {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 30);
 
-    // Busca eventos ocupados
+    console.log('🔍 Buscando disponibilidade do calendário...');
+    console.log('Período:', now.toISOString(), 'até', endDate.toISOString());
+
+    // Busca eventos ocupados usando freebusy
     const response = await calendar.freebusy.query({
       requestBody: {
         timeMin: now.toISOString(),
         timeMax: endDate.toISOString(),
+        timeZone: 'America/Sao_Paulo',
         items: [{ id: process.env.GOOGLE_CALENDAR_ID }]
       }
     });
 
     const busySlots = response.data.calendars?.[process.env.GOOGLE_CALENDAR_ID]?.busy || [];
+    
+    console.log(`📅 Eventos ocupados encontrados: ${busySlots.length}`);
+    busySlots.forEach((busy: any, index) => {
+      console.log(`  ${index + 1}. ${busy.start} → ${busy.end}`);
+    });
     
     // Gera slots disponíveis
     const availableSlots: any[] = [];
@@ -135,8 +144,17 @@ export async function GET() {
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          // Há conflito se os períodos se sobrepõem
-          return slotStart < busyEnd && slotEnd > busyStart;
+          
+          // Debug: loga quando encontra conflito
+          const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
+          if (hasConflict) {
+            console.log(`❌ Conflito detectado às ${hour}:00:`, {
+              slotPeriod: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
+              busyPeriod: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+            });
+          }
+          
+          return hasConflict;
         });
 
         if (!isOccupied) {
@@ -164,8 +182,17 @@ export async function GET() {
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          // Há conflito se os períodos se sobrepõem
-          return slotStart < busyEnd && slotEnd > busyStart;
+          
+          // Debug: loga quando encontra conflito
+          const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
+          if (hasConflict) {
+            console.log(`❌ Conflito detectado às ${hour}:00:`, {
+              slotPeriod: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
+              busyPeriod: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+            });
+          }
+          
+          return hasConflict;
         });
 
         if (!isOccupied) {
@@ -178,6 +205,8 @@ export async function GET() {
         }
       }
     }
+
+    console.log(`✅ Total de slots disponíveis: ${availableSlots.length}`);
 
     return NextResponse.json({
       ok: true,

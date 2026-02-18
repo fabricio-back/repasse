@@ -121,11 +121,13 @@ export async function POST(req: Request) {
       sendUpdates: 'none', // Alterado de 'all' para 'none' - sem envio automático
     });
 
-    console.log('✅ Agendamento criado:', {
+    console.log('✅ Agendamento criado com sucesso:', {
       eventId: response.data.id,
       name,
       email,
-      slot: readableSlot
+      slot: readableSlot,
+      start: startIso,
+      end: endIso
     });
 
     return NextResponse.json({
