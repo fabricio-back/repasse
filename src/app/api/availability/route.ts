@@ -54,22 +54,37 @@ const BLOCKED_DATES = [
 ];
 
 // Verifica se uma data está bloqueada
+// Usa toSaoPauloDateStr para evitar problema de fuso no servidor UTC
+function toSaoPauloDateStr(date: Date): string {
+  // Converte para horário de São Paulo (UTC-3) manualmente
+  const spOffset = -3 * 60; // -180 minutos
+  const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
+  const spDate = new Date(utcMs + spOffset * 60000);
+  return `${spDate.getFullYear()}-${String(spDate.getMonth() + 1).padStart(2, '0')}-${String(spDate.getDate()).padStart(2, '0')}`;
+}
+
 function isDateBlocked(date: Date): boolean {
-  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const dateStr = toSaoPauloDateStr(date);
   return BLOCKED_DATES.includes(dateStr);
 }
 
 // Helper para criar data ISO com fuso horário de São Paulo
-function toSaoPauloISO(date: Date, hour: number, minute: number = 0): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hourStr = String(hour).padStart(2, '0');
-  const minuteStr = String(minute).padStart(2, '0');
+// minute pode ser > 59 (ex: 60 = 1h depois), a função normaliza
+function toSaoPauloISO(date: Date, hour: number, extraMinutes: number = 0): string {
+  // Usa a data correta em SP (não UTC do servidor)
+  const dateStr = toSaoPauloDateStr(date); // YYYY-MM-DD em SP
+  
+  // Normaliza: se extraMinutes >= 60, soma nas horas
+  const totalMinutes = hour * 60 + extraMinutes;
+  const finalHour = Math.floor(totalMinutes / 60);
+  const finalMinute = totalMinutes % 60;
+  
+  const hourStr = String(finalHour).padStart(2, '0');
+  const minuteStr = String(finalMinute).padStart(2, '0');
   
   // Formato: 2026-02-12T15:00:00-03:00
   // São Paulo é UTC-3 (sem horário de verão desde 2019)
-  return `${year}-${month}-${day}T${hourStr}:${minuteStr}:00-03:00`;
+  return `${dateStr}T${hourStr}:${minuteStr}:00-03:00`;
 }
 
 export async function GET() {
@@ -208,14 +223,13 @@ export async function GET() {
       calendarId: process.env.GOOGLE_CALENDAR_ID
     });
 
-  } catch (error) {
-    console.error('Erro ao buscar disponibilidade:', error);
-    // Fallback para slots mockados em caso de erro
+  } catch (error: any) {
+    console.error('❌ Erro ao buscar disponibilidade:', error?.message || error);
     return NextResponse.json({
-      ok: true,
-      slots: generateMockSlots(),
-      mock: true
-    });
+      ok: false,
+      error: error?.message || 'Erro ao buscar disponibilidade',
+      slots: []
+    }, { status: 500 });
   }
 }
 
