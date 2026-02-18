@@ -131,11 +131,11 @@ export async function GET() {
 
       // Horários da manhã (09:00-11:00)
       for (let hour = WORK_HOURS.morning.start; hour < WORK_HOURS.morning.end && morningSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
-        const slotStart = new Date(checkDate);
-        slotStart.setHours(hour, 0, 0, 0);
-        
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotEnd.getMinutes() + WORK_HOURS.slotDuration);
+        // Usa o mesmo ISO que será enviado ao Google Calendar para garantir comparação correta
+        const startISO = toSaoPauloISO(checkDate, hour, 0);
+        const endISO = toSaoPauloISO(checkDate, hour, WORK_HOURS.slotDuration); // inclui intervalo
+        const slotStart = new Date(startISO);
+        const slotEnd = new Date(endISO);
 
         // Pula se o slot já passou
         if (slotStart < now) continue;
@@ -144,23 +144,20 @@ export async function GET() {
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          
-          // Debug: loga quando encontra conflito
           const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
           if (hasConflict) {
-            console.log(`❌ Conflito detectado às ${hour}:00:`, {
-              slotPeriod: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busyPeriod: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+            console.log(`❌ Conflito manhã ${hour}:00 SP:`, {
+              slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
+              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
             });
           }
-          
           return hasConflict;
         });
 
         if (!isOccupied) {
           availableSlots.push({
-            start: toSaoPauloISO(checkDate, hour, 0),
-            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration), // Apenas 30 minutos para a vistoria
+            start: startISO,
+            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration),
             display: `${String(hour).padStart(2, '0')}:00`
           });
           morningSlots++;
@@ -169,11 +166,11 @@ export async function GET() {
 
       // Horários da tarde (14:00-18:00)
       for (let hour = WORK_HOURS.afternoon.start; hour < WORK_HOURS.afternoon.end && afternoonSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
-        const slotStart = new Date(checkDate);
-        slotStart.setHours(hour, 0, 0, 0);
-        
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotEnd.getMinutes() + WORK_HOURS.slotDuration);
+        // Usa o mesmo ISO que será enviado ao Google Calendar para garantir comparação correta
+        const startISO = toSaoPauloISO(checkDate, hour, 0);
+        const endISO = toSaoPauloISO(checkDate, hour, WORK_HOURS.slotDuration); // inclui intervalo
+        const slotStart = new Date(startISO);
+        const slotEnd = new Date(endISO);
 
         // Pula se o slot já passou
         if (slotStart < now) continue;
@@ -182,23 +179,20 @@ export async function GET() {
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          
-          // Debug: loga quando encontra conflito
           const hasConflict = slotStart < busyEnd && slotEnd > busyStart;
           if (hasConflict) {
-            console.log(`❌ Conflito detectado às ${hour}:00:`, {
-              slotPeriod: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busyPeriod: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
+            console.log(`❌ Conflito tarde ${hour}:00 SP:`, {
+              slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
+              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()}`
             });
           }
-          
           return hasConflict;
         });
 
         if (!isOccupied) {
           availableSlots.push({
-            start: toSaoPauloISO(checkDate, hour, 0),
-            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration), // Apenas 30 minutos para a vistoria
+            start: startISO,
+            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration),
             display: `${String(hour).padStart(2, '0')}:00`
           });
           afternoonSlots++;
