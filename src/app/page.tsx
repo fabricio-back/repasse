@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronRight, 
   Car, 
@@ -445,9 +446,9 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               </div>
             )}
 
-            {/* Modal de confirmação fullscreen */}
-            {submitMessage?.type === 'success' && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+            {/* Modal de confirmação fullscreen — renderizado via portal fora de qualquer container */}
+            {submitMessage?.type === 'success' && typeof document !== 'undefined' && createPortal(
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <div className="w-full max-w-sm flex flex-col items-center gap-4">
                   
                   {/* Cabeçalho */}
@@ -490,7 +491,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                   </a>
 
                 </div>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         </div>
