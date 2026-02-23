@@ -459,6 +459,16 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                     </div>
                     
                     <div className="pt-3 border-t border-amber-900/30">
+                      <p className="text-xs text-neutral-400 mb-3">Enquanto aguarda, veja como funciona nossa vistoria:</p>
+                      <div className="relative w-full rounded-lg overflow-hidden mb-4" style={{ paddingBottom: '177.78%' }}>
+                        <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src="https://www.youtube.com/embed/Nzr3wlEdjkE?autoplay=1&mute=1&loop=1&playlist=Nzr3wlEdjkE&controls=1"
+                          title="Como funciona a vistoria - Repasse Auto RS"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
                       <p className="text-xs text-neutral-400 mb-3">Dúvidas ou precisa remarcar? Entre em contato:</p>
                       <a
                         href={`https://api.whatsapp.com/send/?phone=555194221187&text=${encodeURIComponent(`Olá! Acabei de agendar uma vistoria no Repasse Auto RS.\n\n🚗 Veículo: ${customerData.modelo || 'Não informado'}\n🔢 Placa: ${customerData.plate}\n💰 Valor proposto: ${quoteData ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(quoteData.valorProposta) : 'A consultar'}\n📅 Data: ${submitMessage?.scheduledDate}\n🕐 Horário: ${submitMessage?.scheduledTime}`)}&type=phone_number&app_absent=0`}
