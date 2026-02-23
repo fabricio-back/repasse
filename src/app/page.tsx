@@ -244,14 +244,16 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       const data = await response.json();
 
       if (!response.ok || !data.ok) {
-        // Conflito de horário (409): recarrega slots e volta para seleção
+        // Conflito de horário (409): recarrega slots, volta ao calendário e avisa sem loop
         if (response.status === 409) {
           setSelectedSlot(null);
           setSelectedDay(null);
+          setSubmitMessage({ type: 'error', text: 'Este horário acabou de ser ocupado. Escolha outro horário.' });
           // Recarrega disponibilidade atualizada
-          const freshRes = await fetch('/api/availability');
-          const freshData = await freshRes.json();
-          if (freshData.ok && freshData.slots) setAvailableSlots(freshData.slots);
+          fetch('/api/availability')
+            .then(r => r.json())
+            .then(d => { if (d.ok && d.slots) setAvailableSlots(d.slots); });
+          return; // sai sem lançar erro (evita loop)
         }
         throw new Error(data.error || 'Erro ao criar agendamento');
       }
@@ -287,6 +289,13 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
       <h3 className="text-xl font-light text-white mb-6">Agende sua Vistoria</h3>
+
+      {/* Aviso de erro sempre visível (aparece mesmo ao voltar ao calendário) */}
+      {submitMessage?.type === 'error' && (
+        <div className="mb-4 p-3 rounded-lg bg-red-900/20 border border-red-900/50 text-red-400 text-sm font-medium">
+          {submitMessage.text}
+        </div>
+      )}
       
       {isLoadingSlots ? (
         <div className="flex items-center justify-center py-12">
@@ -338,7 +347,7 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               {filteredSelectedDaySlots.map((slot) => (
                 <button
                   key={slot.start}
-                  onClick={() => setSelectedSlot(slot)}
+                  onClick={() => { setSelectedSlot(slot); setSubmitMessage(null); }}
                   aria-label={`Horário ${slot.display}`}
                   className="py-4 px-4 min-h-[56px] rounded-lg border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 transition-all text-sm font-medium touch-manipulation active:scale-95"
                 >
@@ -440,15 +449,22 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               )}
             </Button>
 
-            {submitMessage?.type === 'error' && (
-              <div className="p-4 rounded-lg bg-red-900/20 border border-red-900/50 text-red-400">
-                <p className="text-sm font-medium">{submitMessage.text}</p>
-              </div>
-            )}
-
             {/* Modal de confirmação fullscreen — renderizado via portal fora de qualquer container */}
             {submitMessage?.type === 'success' && typeof document !== 'undefined' && createPortal(
-              <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+              <div
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 99999,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.92)',
+                  backdropFilter: 'blur(6px)',
+                  padding: '16px',
+                  overflowY: 'auto',
+                }}
+              >
                 <div className="w-full max-w-sm flex flex-col items-center gap-4">
                   
                   {/* Cabeçalho */}
