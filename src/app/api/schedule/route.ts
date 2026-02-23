@@ -43,7 +43,10 @@ const getCalendarAuth = () => {
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     undefined,
     privateKey,
-    ['https://www.googleapis.com/auth/calendar.events']
+    [
+      'https://www.googleapis.com/auth/calendar.events',
+      'https://www.googleapis.com/auth/calendar.readonly', // necessário para freebusy.query
+    ]
   );
 };
 
