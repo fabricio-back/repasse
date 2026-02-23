@@ -243,6 +243,15 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       const data = await response.json();
 
       if (!response.ok || !data.ok) {
+        // Conflito de horário (409): recarrega slots e volta para seleção
+        if (response.status === 409) {
+          setSelectedSlot(null);
+          setSelectedDay(null);
+          // Recarrega disponibilidade atualizada
+          const freshRes = await fetch('/api/availability');
+          const freshData = await freshRes.json();
+          if (freshData.ok && freshData.slots) setAvailableSlots(freshData.slots);
+        }
         throw new Error(data.error || 'Erro ao criar agendamento');
       }
 

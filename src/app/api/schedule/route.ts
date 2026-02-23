@@ -86,6 +86,46 @@ export async function POST(req: Request) {
     const auth = getCalendarAuth();
     const calendar = google.calendar({ version: 'v3', auth });
 
+    // ── Verificação de conflito em tempo real ──────────────────────────────
+    // Impede sobreposição mesmo que dois usuários vejam o mesmo slot disponível
+    const VISIT_DURATION = 30; // minutos
+    const INTERVAL = 30;       // minutos de buffer entre vistorias
+
+    const slotStart = new Date(startIso);
+    // Janela de checagem: o slot inteiro + buffer após
+    const checkWindowEnd = new Date(slotStart.getTime() + (VISIT_DURATION + INTERVAL) * 60 * 1000);
+    // Começa 30min antes para pegar eventos que terminam muito perto do nosso início
+    const checkWindowStart = new Date(slotStart.getTime() - INTERVAL * 60 * 1000);
+
+    const freebusyRes = await calendar.freebusy.query({
+      requestBody: {
+        timeMin: checkWindowStart.toISOString(),
+        timeMax: checkWindowEnd.toISOString(),
+        timeZone: 'America/Sao_Paulo',
+        items: [{ id: process.env.GOOGLE_CALENDAR_ID }]
+      }
+    });
+
+    const busyNow = freebusyRes.data.calendars?.[process.env.GOOGLE_CALENDAR_ID!]?.busy || [];
+    const slotEnd = new Date(slotStart.getTime() + VISIT_DURATION * 60 * 1000);
+
+    const hasConflict = busyNow.some((busy: any) => {
+      const busyStart = new Date(busy.start);
+      const busyEnd = new Date(busy.end);
+      // Aplica buffer de 30min após cada evento existente
+      const busyEndWithBuffer = new Date(busyEnd.getTime() + INTERVAL * 60 * 1000);
+      return slotStart < busyEndWithBuffer && slotEnd > busyStart;
+    });
+
+    if (hasConflict) {
+      console.warn('⚠️ Conflito detectado ao agendar:', { startIso, busyNow });
+      return NextResponse.json(
+        { ok: false, error: 'Este horário acabou de ser ocupado. Por favor, escolha outro horário.' },
+        { status: 409 }
+      );
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
     console.log('📅 Criando evento no Google Calendar:', {
       startIso,
       endIso,
