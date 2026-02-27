@@ -102,6 +102,12 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: string; text: string; scheduledDate?: string; scheduledTime?: string } | null>(null);
 
+  // Navegação de mês: 0 = mês atual, 1 = próximo mês
+  const today = new Date();
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const isLastWeek = today.getDate() >= lastDayOfMonth - 6;
+  const [viewMonthOffset, setViewMonthOffset] = useState(isLastWeek ? 1 : 0);
+
   // Busca slots disponíveis
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -125,9 +131,11 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   // Processa calendário
   const calendar = useMemo(() => {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    
+    const now = new Date();
+    const viewDate = new Date(today.getFullYear(), today.getMonth() + viewMonthOffset, 1);
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
@@ -138,17 +146,12 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
     availableSlots.forEach(slot => {
       const date = new Date(slot.start);
       const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      if (!slotsByDay[dayKey]) {
-        slotsByDay[dayKey] = [];
-      }
+      if (!slotsByDay[dayKey]) slotsByDay[dayKey] = [];
       slotsByDay[dayKey].push(slot);
     });
     
     const days: (DayData | null)[] = [];
-    
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
+    for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
     
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
@@ -156,8 +159,6 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       const daySlots = slotsByDay[dayKey] || [];
       
-      // Se for hoje, filtra horários que já passaram
-      const now = new Date();
       const isToday = date.toDateString() === now.toDateString();
       const availableSlotsForDay = isToday 
         ? daySlots.filter(slot => new Date(slot.start) > now)
@@ -174,9 +175,11 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
     
     return {
       days,
-      monthName: today.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      monthName: viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+      isCurrentMonth: viewMonthOffset === 0,
+      isNextMonth: viewMonthOffset === 1,
     };
-  }, [availableSlots]);
+  }, [availableSlots, viewMonthOffset]);
 
   const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
@@ -303,7 +306,26 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
         </div>
       ) : !selectedDay ? (
         <div>
-          <div className="mb-4 text-neutral-400 text-sm font-medium uppercase tracking-widest">{calendar.monthName}</div>
+          {/* Navegação de mês */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setViewMonthOffset(0)}
+              disabled={calendar.isCurrentMonth}
+              className={`text-sm px-3 py-1 rounded transition-colors ${calendar.isCurrentMonth ? 'text-neutral-700 cursor-default' : 'text-amber-500 hover:text-amber-400'}`}
+            >
+              ← {new Date(today.getFullYear(), today.getMonth(), 1).toLocaleDateString('pt-BR', { month: 'long' })}
+            </button>
+            <span className="text-neutral-400 text-sm font-medium uppercase tracking-widest capitalize">
+              {calendar.monthName}
+            </span>
+            <button
+              onClick={() => setViewMonthOffset(1)}
+              disabled={calendar.isNextMonth}
+              className={`text-sm px-3 py-1 rounded transition-colors ${calendar.isNextMonth ? 'text-neutral-700 cursor-default' : 'text-amber-500 hover:text-amber-400'}`}
+            >
+              {new Date(today.getFullYear(), today.getMonth() + 1, 1).toLocaleDateString('pt-BR', { month: 'long' })} →
+            </button>
+          </div>
           <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
             {weekDays.map((day) => (
               <div key={day} className="text-center text-xs text-neutral-600 font-medium">

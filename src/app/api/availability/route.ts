@@ -103,7 +103,7 @@ export async function GET() {
 
     const now = new Date();
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 30);
+    endDate.setDate(endDate.getDate() + 45); // 45 dias para cobrir o próximo mês
 
     console.log('🔍 Buscando disponibilidade do calendário...');
     console.log('Período:', now.toISOString(), 'até', endDate.toISOString());
@@ -132,7 +132,7 @@ export async function GET() {
     // Garante que getDay() e toSaoPauloDateStr() usem o dia correto em SP
     currentDate.setHours(3, 0, 0, 0);
 
-    for (let day = 0; day < 30; day++) {
+    for (let day = 0; day < 45; day++) {
       const checkDate = new Date(currentDate);
       checkDate.setDate(checkDate.getDate() + day);
       
