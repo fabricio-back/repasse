@@ -91,14 +91,12 @@ export async function POST(req: Request) {
 
     // ── Verificação de conflito em tempo real ──────────────────────────────
     // Impede sobreposição mesmo que dois usuários vejam o mesmo slot disponível
-    const VISIT_DURATION = 30; // minutos
-    const INTERVAL = 30;       // minutos de buffer entre vistorias
+    const VISIT_DURATION = 15; // minutos
 
     const slotStart = new Date(startIso);
-    // Janela de checagem: o slot inteiro + buffer após
-    const checkWindowEnd = new Date(slotStart.getTime() + (VISIT_DURATION + INTERVAL) * 60 * 1000);
-    // Começa 30min antes para pegar eventos que terminam muito perto do nosso início
-    const checkWindowStart = new Date(slotStart.getTime() - INTERVAL * 60 * 1000);
+    // Janela de checagem: exatamente o slot de 15min
+    const checkWindowEnd = new Date(slotStart.getTime() + VISIT_DURATION * 60 * 1000);
+    const checkWindowStart = slotStart;
 
     const freebusyRes = await calendar.freebusy.query({
       requestBody: {
@@ -115,9 +113,7 @@ export async function POST(req: Request) {
     const hasConflict = busyNow.some((busy: any) => {
       const busyStart = new Date(busy.start);
       const busyEnd = new Date(busy.end);
-      // Aplica buffer de 30min após cada evento existente
-      const busyEndWithBuffer = new Date(busyEnd.getTime() + INTERVAL * 60 * 1000);
-      return slotStart < busyEndWithBuffer && slotEnd > busyStart;
+      return slotStart < busyEnd && slotEnd > busyStart;
     });
 
     if (hasConflict) {

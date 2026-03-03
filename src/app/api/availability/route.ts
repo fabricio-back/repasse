@@ -26,12 +26,11 @@ const getCalendarAuth = () => {
 };
 
 const WORK_HOURS = {
-  morning: { start: 9, end: 11 },
-  afternoon: { start: 14, end: 18 },
-  visitDuration: 30, // Duração da vistoria em minutos
-  interval: 30, // Intervalo entre vistorias em minutos
-  slotDuration: 60, // Total (vistoria + intervalo)
-  maxSlotsPerPeriod: 4
+  morning: { start: 9, end: 12 },
+  afternoon: { start: 13, end: 17 },
+  visitDuration: 15, // Duração da vistoria em minutos
+  interval: 0,       // Sem intervalo entre vistorias
+  slotDuration: 15,  // Total por slot (= visitDuration)
 };
 
 // Sábados com atendimento especial (exceto aos fins de semana normais)
@@ -153,82 +152,55 @@ export async function GET() {
       // Pula datas bloqueadas (feriados)
       if (isDateBlocked(checkDate)) continue;
 
-      let morningSlots = 0;
-      let afternoonSlots = 0;
-
-      // Horários da manhã (09:00-11:00)
-      for (let hour = WORK_HOURS.morning.start; hour < WORK_HOURS.morning.end && morningSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
-        // Usa o mesmo ISO que será enviado ao Google Calendar para garantir comparação correta
-        const startISO = toSaoPauloISO(checkDate, hour, 0);
-        const endISO = toSaoPauloISO(checkDate, hour, WORK_HOURS.slotDuration); // inclui intervalo
+      // Horários da manhã (09:00-12:00) em slots de 15min
+      for (let totalMin = WORK_HOURS.morning.start * 60; totalMin < WORK_HOURS.morning.end * 60; totalMin += WORK_HOURS.slotDuration) {
+        const slotHour = Math.floor(totalMin / 60);
+        const slotMin = totalMin % 60;
+        const startISO = toSaoPauloISO(checkDate, slotHour, slotMin);
+        const endISO = toSaoPauloISO(checkDate, slotHour, slotMin + WORK_HOURS.slotDuration);
         const slotStart = new Date(startISO);
         const slotEnd = new Date(endISO);
 
-        // Pula se o slot já passou
         if (slotStart < now) continue;
 
-        // Verifica se há conflito com eventos existentes
-        // Exige intervalo de 30min APÓS cada evento existente também
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          // Adiciona buffer de intervalo ao fim do evento existente
-          const busyEndWithBuffer = new Date(busyEnd.getTime() + WORK_HOURS.interval * 60 * 1000);
-          const hasConflict = slotStart < busyEndWithBuffer && slotEnd > busyStart;
-          if (hasConflict) {
-            console.log(`❌ Conflito manhã ${hour}:00 SP:`, {
-              slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()} (+30min buffer → ${busyEndWithBuffer.toISOString()})`
-            });
-          }
-          return hasConflict;
+          return slotStart < busyEnd && slotEnd > busyStart;
         });
 
         if (!isOccupied) {
           availableSlots.push({
             start: startISO,
-            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration),
-            display: `${String(hour).padStart(2, '0')}:00`
+            end: toSaoPauloISO(checkDate, slotHour, slotMin + WORK_HOURS.visitDuration),
+            display: `${String(slotHour).padStart(2, '0')}:${String(slotMin).padStart(2, '0')}`
           });
-          morningSlots++;
         }
       }
 
-      // Horários da tarde (14:00-18:00)
-      for (let hour = WORK_HOURS.afternoon.start; hour < WORK_HOURS.afternoon.end && afternoonSlots < WORK_HOURS.maxSlotsPerPeriod; hour++) {
-        // Usa o mesmo ISO que será enviado ao Google Calendar para garantir comparação correta
-        const startISO = toSaoPauloISO(checkDate, hour, 0);
-        const endISO = toSaoPauloISO(checkDate, hour, WORK_HOURS.slotDuration); // inclui intervalo
+      // Horários da tarde (13:00-17:00) em slots de 15min
+      for (let totalMin = WORK_HOURS.afternoon.start * 60; totalMin < WORK_HOURS.afternoon.end * 60; totalMin += WORK_HOURS.slotDuration) {
+        const slotHour = Math.floor(totalMin / 60);
+        const slotMin = totalMin % 60;
+        const startISO = toSaoPauloISO(checkDate, slotHour, slotMin);
+        const endISO = toSaoPauloISO(checkDate, slotHour, slotMin + WORK_HOURS.slotDuration);
         const slotStart = new Date(startISO);
         const slotEnd = new Date(endISO);
 
-        // Pula se o slot já passou
         if (slotStart < now) continue;
 
-        // Verifica se há conflito com eventos existentes
-        // Exige intervalo de 30min APÓS cada evento existente também
         const isOccupied = busySlots.some((busy: any) => {
           const busyStart = new Date(busy.start);
           const busyEnd = new Date(busy.end);
-          // Adiciona buffer de intervalo ao fim do evento existente
-          const busyEndWithBuffer = new Date(busyEnd.getTime() + WORK_HOURS.interval * 60 * 1000);
-          const hasConflict = slotStart < busyEndWithBuffer && slotEnd > busyStart;
-          if (hasConflict) {
-            console.log(`❌ Conflito tarde ${hour}:00 SP:`, {
-              slot: `${slotStart.toISOString()} → ${slotEnd.toISOString()}`,
-              busy: `${busyStart.toISOString()} → ${busyEnd.toISOString()} (+30min buffer → ${busyEndWithBuffer.toISOString()})`
-            });
-          }
-          return hasConflict;
+          return slotStart < busyEnd && slotEnd > busyStart;
         });
 
         if (!isOccupied) {
           availableSlots.push({
             start: startISO,
-            end: toSaoPauloISO(checkDate, hour, WORK_HOURS.visitDuration),
-            display: `${String(hour).padStart(2, '0')}:00`
+            end: toSaoPauloISO(checkDate, slotHour, slotMin + WORK_HOURS.visitDuration),
+            display: `${String(slotHour).padStart(2, '0')}:${String(slotMin).padStart(2, '0')}`
           });
-          afternoonSlots++;
         }
       }
     }
@@ -267,36 +239,32 @@ function generateMockSlots() {
     // Pula datas bloqueadas (feriados)
     if (isDateBlocked(date)) continue;
     
-    // Manhã: 09:00, 10:00
-    for (let hour of [9, 10]) {
+    // Manhã: 09:00-12:00 em slots de 15min
+    for (let totalMin = WORK_HOURS.morning.start * 60; totalMin < WORK_HOURS.morning.end * 60; totalMin += WORK_HOURS.slotDuration) {
+      const slotHour = Math.floor(totalMin / 60);
+      const slotMin = totalMin % 60;
       const slotStart = new Date(date);
-      slotStart.setHours(hour, 0, 0, 0);
-      
-      const slotEnd = new Date(slotStart);
-      slotEnd.setHours(slotEnd.getHours() + 1);
-      
+      slotStart.setHours(slotHour, slotMin, 0, 0);
       if (slotStart > now) {
         slots.push({
-          start: toSaoPauloISO(date, hour, 0),
-          end: toSaoPauloISO(date, hour, 30), // Apenas 30 minutos para a vistoria
-          display: `${String(hour).padStart(2, '0')}:00`
+          start: toSaoPauloISO(date, slotHour, slotMin),
+          end: toSaoPauloISO(date, slotHour, slotMin + WORK_HOURS.visitDuration),
+          display: `${String(slotHour).padStart(2, '0')}:${String(slotMin).padStart(2, '0')}`
         });
       }
     }
-    
-    // Tarde: 14:00, 15:00, 16:00, 17:00
-    for (let hour of [14, 15, 16, 17]) {
+
+    // Tarde: 13:00-17:00 em slots de 15min
+    for (let totalMin = WORK_HOURS.afternoon.start * 60; totalMin < WORK_HOURS.afternoon.end * 60; totalMin += WORK_HOURS.slotDuration) {
+      const slotHour = Math.floor(totalMin / 60);
+      const slotMin = totalMin % 60;
       const slotStart = new Date(date);
-      slotStart.setHours(hour, 0, 0, 0);
-      
-      const slotEnd = new Date(slotStart);
-      slotEnd.setHours(slotEnd.getHours() + 1);
-      
+      slotStart.setHours(slotHour, slotMin, 0, 0);
       if (slotStart > now) {
         slots.push({
-          start: toSaoPauloISO(date, hour, 0),
-          end: toSaoPauloISO(date, hour, 30), // Apenas 30 minutos para a vistoria
-          display: `${String(hour).padStart(2, '0')}:00`
+          start: toSaoPauloISO(date, slotHour, slotMin),
+          end: toSaoPauloISO(date, slotHour, slotMin + WORK_HOURS.visitDuration),
+          display: `${String(slotHour).padStart(2, '0')}:${String(slotMin).padStart(2, '0')}`
         });
       }
     }
