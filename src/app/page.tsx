@@ -85,6 +85,7 @@ interface DayData {
   isPast: boolean;
   slots: AvailableSlot[];
   hasSlots: boolean;
+  isSpecial?: boolean; // sábado aberto por exceção
 }
 
 // --- COMPONENTE DE AGENDAMENTO ---
@@ -169,7 +170,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
         date,
         isPast,
         slots: availableSlotsForDay,
-        hasSlots: availableSlotsForDay.length > 0
+        hasSlots: availableSlotsForDay.length > 0,
+        isSpecial: date.getDay() === 6 && availableSlotsForDay.length > 0, // sábado com slots = especial
       });
     }
     
@@ -344,7 +346,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                   "aspect-square min-h-[44px] flex items-center justify-center rounded-lg border text-sm font-medium transition-all touch-manipulation",
                   !dayData && "invisible",
                   (dayData?.isPast || !dayData?.hasSlots) && "opacity-30 cursor-not-allowed border-neutral-800 text-neutral-700",
-                  (!dayData?.isPast && dayData?.hasSlots) && "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 cursor-pointer"
+                  (!dayData?.isPast && dayData?.hasSlots && !dayData?.isSpecial) && "border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white hover:bg-neutral-900/50 cursor-pointer",
+                  (!dayData?.isPast && dayData?.isSpecial) && "border-green-700 text-green-400 hover:border-green-500 hover:text-green-300 hover:bg-green-900/20 cursor-pointer"
                 )}
               >
                 {dayData?.day}

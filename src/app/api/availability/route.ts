@@ -34,6 +34,15 @@ const WORK_HOURS = {
   maxSlotsPerPeriod: 4
 };
 
+// Sábados com atendimento especial (exceto aos fins de semana normais)
+const SPECIAL_SATURDAYS = [
+  '2026-03-14',
+];
+
+function isSpecialSaturday(date: Date): boolean {
+  return SPECIAL_SATURDAYS.includes(toSaoPauloDateStr(date));
+}
+
 // Datas bloqueadas (feriados e dias sem atendimento)
 const BLOCKED_DATES = [
   '2026-01-01', // Ano Novo
@@ -136,9 +145,10 @@ export async function GET() {
       const checkDate = new Date(currentDate);
       checkDate.setDate(checkDate.getDate() + day);
       
-      // Pula fins de semana
+      // Pula fins de semana (exceto sábados especiais)
       const dayOfWeek = checkDate.getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+      if (dayOfWeek === 0) continue; // domingo nunca
+      if (dayOfWeek === 6 && !isSpecialSaturday(checkDate)) continue; // sábado só se especial
 
       // Pula datas bloqueadas (feriados)
       if (isDateBlocked(checkDate)) continue;
@@ -251,7 +261,8 @@ function generateMockSlots() {
     date.setDate(date.getDate() + day);
     
     const dayOfWeek = date.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    if (dayOfWeek === 0) continue;
+    if (dayOfWeek === 6 && !isSpecialSaturday(date)) continue;
     
     // Pula datas bloqueadas (feriados)
     if (isDateBlocked(date)) continue;
