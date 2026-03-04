@@ -9,6 +9,8 @@ interface ScheduleRequest {
   phone: string;
   readableSlot: string;
   description?: string;
+  modelo?: string;
+  placa?: string;
   valorFipe?: number;
   valorProposta?: number;
 }
@@ -53,7 +55,7 @@ const getCalendarAuth = () => {
 export async function POST(req: Request) {
   try {
     const body: ScheduleRequest = await req.json();
-    const { startIso, endIso, name, email, phone, readableSlot, description, valorFipe, valorProposta } = body;
+    const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, valorFipe, valorProposta } = body;
 
     // Formatação de valores
     const formatCurrency = (value?: number) => {
@@ -132,9 +134,10 @@ export async function POST(req: Request) {
       slot: readableSlot
     });
 
+    const veiculoLabel = [modelo, placa].filter(Boolean).join(' - ');
     const event = {
-      summary: `Vistoria - ${name}`,
-      description: `Cliente: ${name}\nEmail: ${email}\nTelefone: ${phone}\n\n${description || 'Vistoria de veículo agendada'}\n\n=== VALORES ===\nTabela FIPE: ${formatCurrency(valorFipe)}\nProposta: ${formatCurrency(valorProposta)}`,
+      summary: `Vistoria - ${veiculoLabel || name}`,
+      description: `🚗 Veículo: ${modelo || 'Não informado'}\n🔢 Placa: ${placa || 'Não informada'}\n\n👤 Cliente: ${name}\n📧 Email: ${email}\n📱 Telefone: ${phone}\n\n=== VALORES ===\nTabela FIPE: ${formatCurrency(valorFipe)}\nProposta: ${formatCurrency(valorProposta)}`,
       start: {
         dateTime: startIso,
         timeZone: 'America/Sao_Paulo',

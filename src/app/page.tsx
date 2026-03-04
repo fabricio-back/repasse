@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
@@ -240,7 +240,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
           email: formData.email,
           phone: formData.phone,
           readableSlot: `${selectedDay?.date.toLocaleDateString('pt-BR')} ${selectedSlot.display}`,
-          description: `Vistoria de veículo\nPlaca: ${customerData.plate}\nKM: ${customerData.km}`,
+          modelo: customerData.modelo || '',
+          placa: customerData.plate,
           valorFipe: quoteData?.valorFipe,
           valorProposta: quoteData?.valorProposta
         })
