@@ -126,10 +126,28 @@ export async function GET() {
       }
     });
 
-    const busySlots = response.data.calendars?.[process.env.GOOGLE_CALENDAR_ID]?.busy || [];
+    const calendarId = process.env.GOOGLE_CALENDAR_ID!;
+    const calendarsData = response.data.calendars || {};
+    
+    // Log todas as chaves retornadas para debug
+    const calendarKeys = Object.keys(calendarsData);
+    console.log('🔑 Calendar ID configurado:', calendarId);
+    console.log('🔑 Chaves retornadas pelo freebusy:', calendarKeys);
+    
+    // Tenta buscar pelo ID exato, senão pega o primeiro calendário disponível
+    let busySlots = calendarsData[calendarId]?.busy || [];
+    
+    if (busySlots.length === 0 && calendarKeys.length > 0) {
+      // Fallback: tenta match case-insensitive ou pega o primeiro
+      const matchingKey = calendarKeys.find(k => k.toLowerCase() === calendarId.toLowerCase()) || calendarKeys[0];
+      if (matchingKey && matchingKey !== calendarId) {
+        console.log(`⚠️ Calendar ID não bateu exato. Usando chave: ${matchingKey}`);
+        busySlots = calendarsData[matchingKey]?.busy || [];
+      }
+    }
     
     console.log(`📅 Eventos ocupados encontrados: ${busySlots.length}`);
-    busySlots.forEach((busy: any, index) => {
+    busySlots.forEach((busy: any, index: number) => {
       console.log(`  ${index + 1}. ${busy.start} → ${busy.end}`);
     });
     

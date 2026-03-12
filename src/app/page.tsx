@@ -118,6 +118,7 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
         
         if (data.ok && data.slots) {
           setAvailableSlots(data.slots);
+          console.log(`📅 Slots carregados: ${data.slots.length} (mock: ${data.mock || false})`);
         }
       } catch (error) {
         console.error('Erro ao buscar disponibilidade:', error);
