@@ -511,7 +511,7 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
                     <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
                       <iframe
                         className="absolute inset-0 w-full h-full"
-                        src="https://www.youtube.com/embed/Nzr3wlEdjkE?autoplay=1&mute=1&loop=1&playlist=Nzr3wlEdjkE&controls=1"
+                        src="https://www.youtube.com/embed/Nzr3wlEdjkE?loop=1&playlist=Nzr3wlEdjkE&controls=1"
                         title="Como funciona a vistoria - Repasse Auto RS"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
