@@ -7,12 +7,13 @@ interface RequestBody {
   nome: string;
   telefone: string;
   cidade: string;
+  leadId?: string;
 }
 
 export async function POST(req: Request) {
   try {
     const body: RequestBody = await req.json();
-    const { placa, km, nome, telefone, cidade } = body;
+    const { placa, km, nome, telefone, cidade, leadId: incomingLeadId } = body;
 
     // 1. Validação Básica
     if (!placa || !km) {
@@ -74,43 +75,47 @@ export async function POST(req: Request) {
     const descontoFixo = 0.18;
     const valorProposta = Math.floor(valorFipe * (1 - descontoFixo));
 
-    // 4. Salvar lead no Supabase (não bloqueia se não configurado)
-    let leadId: string | null = null;
+    // 4. Atualizar/criar lead no Supabase com dados da FIPE
+    let leadId: string | null = incomingLeadId ?? null;
     if (!supabase) {
       console.warn('⚠️ [Supabase] Cliente não inicializado — verifique NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
     } else {
-      console.log('🔄 [Supabase] Tentando salvar lead...', { nome, telefone, placa, km, cidade, modelo, ano, valorFipe, valorProposta });
-      try {
-        const { data: leadData, error: leadError } = await supabase
-          .from('leads')
-          .insert({
-            nome,
-            telefone,
-            placa,
-            km,
-            cidade,
-            modelo,
-            ano,
-            valor_fipe: valorFipe,
-            valor_proposta: valorProposta,
-            status: 'cotacao_visualizada',
-          })
-          .select('id')
-          .single();
+      const fipeFields = {
+        modelo,
+        ano,
+        valor_fipe: valorFipe,
+        valor_proposta: valorProposta,
+        status: 'cotacao_visualizada',
+      };
 
-        if (leadError) {
-          console.error('❌ [Supabase] Erro ao salvar lead:', {
-            message: leadError.message,
-            code: leadError.code,
-            details: leadError.details,
-            hint: leadError.hint,
-          });
+      try {
+        if (leadId) {
+          // Lead já existe (criado progressivamente) → apenas atualiza com dados da FIPE
+          console.log('🔄 [Supabase] Atualizando lead existente com FIPE...', leadId, fipeFields);
+          const { error } = await supabase.from('leads').update(fipeFields).eq('id', leadId);
+          if (error) {
+            console.error('❌ [Supabase] Erro ao atualizar lead com FIPE:', error.message);
+          } else {
+            console.log('✅ [Supabase] Lead atualizado com FIPE! ID:', leadId);
+          }
         } else {
-          leadId = leadData.id;
-          console.log('✅ [Supabase] Lead salvo com sucesso! ID:', leadId);
+          // Fallback: cria o lead completo de uma vez (sem salvamento progressivo)
+          console.log('🔄 [Supabase] Criando lead completo (fallback)...', { nome, telefone, placa, km, cidade });
+          const { data: leadData, error: leadError } = await supabase
+            .from('leads')
+            .insert({ nome, telefone, placa, km, cidade, ...fipeFields })
+            .select('id')
+            .single();
+
+          if (leadError) {
+            console.error('❌ [Supabase] Erro ao criar lead:', { message: leadError.message, code: leadError.code, hint: leadError.hint });
+          } else {
+            leadId = leadData.id;
+            console.log('✅ [Supabase] Lead criado com sucesso! ID:', leadId);
+          }
         }
       } catch (dbErr: any) {
-        console.error('❌ [Supabase] Exceção ao salvar lead:', dbErr?.message || dbErr);
+        console.error('❌ [Supabase] Exceção:', dbErr?.message || dbErr);
       }
     }
 

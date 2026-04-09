@@ -552,7 +552,38 @@ export default function Home() {
     setShowCookieBanner(false);
   };
 
-  const handleNext = () => setStep(prev => prev + 1);
+  const handleNext = async () => {
+    const currentStep = step;
+    setStep(prev => prev + 1); // avança imediatamente — salvamento é fire-and-forget
+
+    // Step 2 → 3: temos nome + telefone → cria lead no Supabase
+    if (currentStep === 2) {
+      try {
+        const res = await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome: formData.name, telefone: formData.phone }),
+        });
+        const data = await res.json();
+        if (data.leadId) {
+          setLeadId(data.leadId);
+          console.log('[Lead] Criado no Supabase:', data.leadId);
+        }
+      } catch (e) {
+        console.warn('[Lead] Erro ao criar lead:', e);
+      }
+    }
+
+    // Step 3 → 4: temos placa → atualiza lead
+    if (currentStep === 3 && leadId) {
+      fetch('/api/lead', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId, placa: formData.plate, status: 'placa_informada' }),
+      }).catch(e => console.warn('[Lead] Erro ao atualizar placa:', e));
+    }
+  };
+
   const handleBack = () => setStep(prev => prev - 1);
 
   const handleChange = (field: string, value: string) => {
@@ -594,6 +625,15 @@ export default function Home() {
     }
 
     try {
+      // Atualiza lead com km + cidade antes de buscar FIPE
+      if (leadId) {
+        fetch('/api/lead', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ leadId, km: parseInt(formData.km), cidade: formData.city, status: 'cotacao_solicitada' }),
+        }).catch(e => console.warn('[Lead] Erro ao atualizar km/cidade:', e));
+      }
+
       // Chama a API real do Next.js
       const response = await fetch('/api/quote', {
         method: 'POST',
@@ -606,6 +646,7 @@ export default function Home() {
           nome: formData.name,
           telefone: formData.phone,
           cidade: formData.city,
+          leadId, // passa o leadId existente para atualizar ao invés de inserir novo
         })
       });
 
