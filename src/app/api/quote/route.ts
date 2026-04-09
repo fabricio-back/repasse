@@ -122,10 +122,10 @@ export async function POST(req: Request) {
       } else {
         // Fallback: cria o lead completo de uma vez (sem salvamento progressivo)
         console.log('🆕 [QUOTE/Supabase] LeadId não fornecido. Criando novo lead completo...');
-        console.log('📋 [QUOTE/Supabase] Dados para criação:', { nome, telefone, placa, km, cidade, ...fipeFields });
+        console.log('📋 [QUOTE/Supabase] Dados para criação:', { nome, telefone, ...fipeFields });
         const { data: leadData, error: leadError } = await supabase
           .from('leads')
-          .insert({ nome, telefone, placa, km, cidade, ...fipeFields })
+          .insert({ nome, telefone, ...fipeFields })
           .select('id')
           .single();
 
