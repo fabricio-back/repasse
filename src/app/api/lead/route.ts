@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 // POST: cria o lead com nome + telefone (step 2)
 // PATCH: atualiza o lead existente com novos campos
@@ -12,10 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'nome e telefone são obrigatórios' }, { status: 400 });
     }
 
-    if (!supabase) {
-      console.warn('⚠️ [Supabase] Cliente não inicializado. Lead não criado.');
-      return NextResponse.json({ ok: true, leadId: null, mock: true });
-    }
+    const supabase = await createClient();
 
     console.log('🔄 [Supabase] Criando lead...', { nome, telefone });
 
@@ -54,10 +51,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'leadId é obrigatório' }, { status: 400 });
     }
 
-    if (!supabase) {
-      console.warn('⚠️ [Supabase] Cliente não inicializado. Lead não atualizado.');
-      return NextResponse.json({ ok: true, mock: true });
-    }
+    const supabase = await createClient();
 
     console.log('🔄 [Supabase] Atualizando lead', leadId, 'com campos:', fields);
 

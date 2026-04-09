@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 interface RequestBody {
   placa: string;
@@ -77,46 +77,44 @@ export async function POST(req: Request) {
 
     // 4. Atualizar/criar lead no Supabase com dados da FIPE
     let leadId: string | null = incomingLeadId ?? null;
-    if (!supabase) {
-      console.warn('⚠️ [Supabase] Cliente não inicializado — verifique NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
-    } else {
-      const fipeFields = {
-        modelo,
-        ano,
-        valor_fipe: valorFipe,
-        valor_proposta: valorProposta,
-        status: 'cotacao_visualizada',
-      };
+    const supabase = await createClient();
+    
+    const fipeFields = {
+      modelo,
+      ano,
+      valor_fipe: valorFipe,
+      valor_proposta: valorProposta,
+      status: 'cotacao_visualizada',
+    };
 
-      try {
-        if (leadId) {
-          // Lead já existe (criado progressivamente) → apenas atualiza com dados da FIPE
-          console.log('🔄 [Supabase] Atualizando lead existente com FIPE...', leadId, fipeFields);
-          const { error } = await supabase.from('leads').update(fipeFields).eq('id', leadId);
-          if (error) {
-            console.error('❌ [Supabase] Erro ao atualizar lead com FIPE:', error.message);
-          } else {
-            console.log('✅ [Supabase] Lead atualizado com FIPE! ID:', leadId);
-          }
+    try {
+      if (leadId) {
+        // Lead já existe (criado progressivamente) → apenas atualiza com dados da FIPE
+        console.log('🔄 [Supabase] Atualizando lead existente com FIPE...', leadId, fipeFields);
+        const { error } = await supabase.from('leads').update(fipeFields).eq('id', leadId);
+        if (error) {
+          console.error('❌ [Supabase] Erro ao atualizar lead com FIPE:', error.message);
         } else {
-          // Fallback: cria o lead completo de uma vez (sem salvamento progressivo)
-          console.log('🔄 [Supabase] Criando lead completo (fallback)...', { nome, telefone, placa, km, cidade });
-          const { data: leadData, error: leadError } = await supabase
-            .from('leads')
-            .insert({ nome, telefone, placa, km, cidade, ...fipeFields })
-            .select('id')
-            .single();
-
-          if (leadError) {
-            console.error('❌ [Supabase] Erro ao criar lead:', { message: leadError.message, code: leadError.code, hint: leadError.hint });
-          } else {
-            leadId = leadData.id;
-            console.log('✅ [Supabase] Lead criado com sucesso! ID:', leadId);
-          }
+          console.log('✅ [Supabase] Lead atualizado com FIPE! ID:', leadId);
         }
-      } catch (dbErr: any) {
-        console.error('❌ [Supabase] Exceção:', dbErr?.message || dbErr);
+      } else {
+        // Fallback: cria o lead completo de uma vez (sem salvamento progressivo)
+        console.log('🔄 [Supabase] Criando lead completo (fallback)...', { nome, telefone, placa, km, cidade });
+        const { data: leadData, error: leadError } = await supabase
+          .from('leads')
+          .insert({ nome, telefone, placa, km, cidade, ...fipeFields })
+          .select('id')
+          .single();
+
+        if (leadError) {
+          console.error('❌ [Supabase] Erro ao criar lead:', { message: leadError.message, code: leadError.code, hint: leadError.hint });
+        } else {
+          leadId = leadData.id;
+          console.log('✅ [Supabase] Lead criado com sucesso! ID:', leadId);
+        }
       }
+    } catch (dbErr: any) {
+      console.error('❌ [Supabase] Exceção:', dbErr?.message || dbErr);
     }
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 interface ScheduleRequest {
   startIso: string;
@@ -84,8 +84,9 @@ export async function POST(req: Request) {
       });
 
       // Atualiza lead no Supabase mesmo sem Google Calendar
-      if (supabase && leadId) {
+      if (leadId) {
         try {
+          const supabase = await createClient();
           await supabase
             .from('leads')
             .update({
@@ -195,8 +196,9 @@ export async function POST(req: Request) {
     });
 
     // Atualiza lead no Supabase com os dados do agendamento
-    if (supabase && leadId) {
+    if (leadId) {
       try {
+        const supabase = await createClient();
         await supabase
           .from('leads')
           .update({
