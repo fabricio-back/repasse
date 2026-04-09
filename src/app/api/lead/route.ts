@@ -31,7 +31,8 @@ export async function POST(req: Request) {
         code: error.code,
         hint: error.hint,
       });
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      // Retorna 200 para não quebrar o fluxo do usuário
+      return NextResponse.json({ ok: false, error: error.message, leadId: null });
     }
 
     console.log('✅ [Supabase] Lead criado! ID:', data.id);
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
 
   } catch (err: any) {
     console.error('❌ [Supabase] Exceção no POST /api/lead:', err?.message || err);
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: err.message, leadId: null });
   }
 }
 
@@ -71,7 +72,7 @@ export async function PATCH(req: Request) {
         code: error.code,
         hint: error.hint,
       });
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json({ ok: false, error: error.message });
     }
 
     console.log('✅ [Supabase] Lead atualizado com sucesso!', leadId);
@@ -79,6 +80,6 @@ export async function PATCH(req: Request) {
 
   } catch (err: any) {
     console.error('❌ [Supabase] Exceção no PATCH /api/lead:', err?.message || err);
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: err.message });
   }
 }
