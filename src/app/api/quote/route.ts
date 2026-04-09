@@ -19,10 +19,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
 
-    // 2. Consulta FIPE (FipeAPI.com.br ou Mock para Desenvolvimento)
-    // Nota: Em produção, considere fazer cache desta requisição
     const apiKey = process.env.FIPE_API_KEY;
-    
+
     let modelo: string;
     let ano: string;
     let valorFipe: number;
@@ -31,38 +29,19 @@ export async function POST(req: Request) {
     // MODO DESENVOLVIMENTO: Se não houver API key, usa dados mockados
     if (!apiKey || apiKey === 'your_api_key_here') {
       console.log('⚠️ FIPE_API_KEY não configurada. Usando dados mockados para desenvolvimento.');
-      
-      // Simula delay de rede
+
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Dados mockados baseados na estrutura real da FipeAPI
+
       const mockData = {
         data: {
-          veiculo: {
-            uf: "SP",
-            ano: "2020/2020",
-            cor: "Prata",
-            placa: placa,
-            combustivel: "Gasolina",
-            marca_modelo: "Toyota Corolla XEi 2.0",
-            municipio: "São Paulo"
-          },
-          fipes: [
-            {
-              valor: 85000,
-              codigo: "005074-1",
-              marca_modelo: "Toyota Corolla XEi 2.0 Flex 16V Aut."
-            }
-          ]
-        }
+          veiculo: { ano: '2020/2020', placa },
+          fipes: [{ valor: 85000, marca_modelo: 'Toyota Corolla XEi 2.0 Flex 16V Aut.' }],
+        },
       };
-      
-      const veiculo = mockData.data.veiculo;
-      const fipeInfo = mockData.data.fipes[0];
-      
-      valorFipe = fipeInfo.valor;
-      modelo = fipeInfo.marca_modelo;
-      ano = veiculo.ano.split('/')[0];
+
+      valorFipe = mockData.data.fipes[0].valor;
+      modelo = mockData.data.fipes[0].marca_modelo;
+      ano = mockData.data.veiculo.ano.split('/')[0];
       isMock = true;
 
     } else {
@@ -70,7 +49,7 @@ export async function POST(req: Request) {
       const fipeResponse = await fetch(
         `https://placas.fipeapi.com.br/placas/${placa}?key=${apiKey}`
       );
-      
+
       if (!fipeResponse.ok) {
         const errorText = await fipeResponse.text();
         console.error('Erro na API FIPE:', errorText);
@@ -78,29 +57,27 @@ export async function POST(req: Request) {
       }
 
       const fipeData = await fipeResponse.json();
-      
-      // Validar se retornou dados
+
       if (!fipeData.data || !fipeData.data.fipes || fipeData.data.fipes.length === 0) {
         throw new Error('Dados do veículo não encontrados');
       }
 
-      // Extrair informações do veículo
       const veiculo = fipeData.data.veiculo;
-      const fipeInfo = fipeData.data.fipes[0]; // Primeiro resultado FIPE
-      
-      valorFipe = fipeInfo.valor; // Já vem como número
+      const fipeInfo = fipeData.data.fipes[0];
+
+      valorFipe = fipeInfo.valor;
       modelo = fipeInfo.marca_modelo || veiculo.marca_modelo;
       ano = veiculo.ano ? veiculo.ano.split('/')[0] : 'N/A';
     }
 
-    // 3. Algoritmo de Precificação (Privado)
-    const descontoFixo = 0.18; // 18% de desconto fixo
+    // 3. Algoritmo de Precificação
+    const descontoFixo = 0.18;
     const valorProposta = Math.floor(valorFipe * (1 - descontoFixo));
 
-    // 4. Salvar lead no Supabase
+    // 4. Salvar lead no Supabase (não bloqueia se não configurado)
     let leadId: string | null = null;
     if (!supabase) {
-      console.warn('⚠️ Supabase não configurado (NEXT_PUBLIC_SUPABASE_URL ausente). Lead não salvo.');
+      console.warn('⚠️ Supabase não configurado. Lead não salvo.');
     } else {
       try {
         const { data: leadData, error: leadError } = await supabase
@@ -129,6 +106,7 @@ export async function POST(req: Request) {
       } catch (dbErr) {
         console.error('⚠️ Supabase indisponível:', dbErr);
       }
+    }
 
     return NextResponse.json({
       sucesso: true,
@@ -142,12 +120,11 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('Erro no processamento:', error);
-    console.error('Stack trace:', error.stack);
     return NextResponse.json(
-      { 
+      {
         error: error.message || 'Falha ao gerar cotação. Tente novamente.',
-        details: process.env.NODE_ENV === 'development' ? error.toString() : undefined
-      }, 
+        details: process.env.NODE_ENV === 'development' ? error.toString() : undefined,
+      },
       { status: 500 }
     );
   }
