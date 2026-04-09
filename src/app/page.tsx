@@ -1169,11 +1169,30 @@ export default function Home() {
                           ? "bg-neutral-800 text-neutral-500 cursor-not-allowed" 
                           : "bg-green-600 hover:bg-green-700 text-white"
                       )}
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         if (!counterOfferData.value) {
                           e.preventDefault();
                           return;
                         }
+                        
+                        // Salva a contraproposta no Supabase antes de abrir o WhatsApp
+                        if (leadId) {
+                          try {
+                            await fetch('/api/lead', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ 
+                                leadId, 
+                                valor_contraproposta: counterOfferData.value,
+                                status: 'contraproposta_enviada'
+                              }),
+                            });
+                            console.log('[Lead] Contraproposta salva:', counterOfferData.value);
+                          } catch (err) {
+                            console.warn('[Lead] Erro ao salvar contraproposta:', err);
+                          }
+                        }
+                        
                         setShowCounterOffer(false);
                         setCounterOfferData({ value: "" });
                       }}
