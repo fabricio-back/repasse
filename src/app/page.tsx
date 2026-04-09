@@ -567,6 +567,21 @@ export default function Home() {
     }
   };
 
+  // Mask + validação de celular brasileiro (DD) 9XXXX-XXXX
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+    let masked = digits;
+    if (digits.length > 2) masked = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length > 7) masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    handleChange('phone', masked);
+  };
+
+  const isPhoneValid = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    // Celular BR: 11 dígitos (com DDD) e nono dígito = 9
+    return digits.length === 11 && digits[2] === '9';
+  };
+
   const processQuote = async () => {
     setStep(5); // Loading Screen
     setError("");
@@ -909,20 +924,41 @@ export default function Home() {
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
               <h2 className="text-xl font-light text-white">Qual o seu WhatsApp, {formData.name.split(' ')[0]}?</h2>
-              <Input 
-                label="Telefone / WhatsApp" 
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="(51) 99999-9999" 
-                value={formData.phone}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('phone', e.target.value)}
-                autoFocus
-                aria-label="Telefone ou WhatsApp"
-              />
+              <div className="flex flex-col gap-2">
+                <div className="relative">
+                  <Input 
+                    label="Celular / WhatsApp" 
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="(51) 99999-9999" 
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                    autoFocus
+                    aria-label="Celular ou WhatsApp"
+                  />
+                  {isPhoneValid(formData.phone) && (
+                    <div className="absolute right-4 top-9 text-amber-500 animate-in fade-in zoom-in duration-300">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                  )}
+                </div>
+                {formData.phone.replace(/\D/g, '').length > 0 && !isPhoneValid(formData.phone) && (
+                  <p className="text-xs text-neutral-500 ml-1">
+                    {formData.phone.replace(/\D/g, '').length < 11
+                      ? `${11 - formData.phone.replace(/\D/g, '').length} dígito${11 - formData.phone.replace(/\D/g, '').length > 1 ? 's' : ''} restante${11 - formData.phone.replace(/\D/g, '').length > 1 ? 's' : ''}`
+                      : 'O número deve começar com 9 após o DDD (ex: (51) 9XXXX-XXXX)'}
+                  </p>
+                )}
+                {isPhoneValid(formData.phone) && (
+                  <p className="text-xs text-amber-500/80 ml-1 animate-in fade-in duration-300">
+                    ✓ Número válido
+                  </p>
+                )}
+              </div>
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={handleBack}><ChevronLeft className="w-4 h-4"/></Button>
-                <Button onClick={handleNext} disabled={formData.phone.replace(/\D/g, '').length < 10}>
+                <Button onClick={handleNext} disabled={!isPhoneValid(formData.phone)}>
                   Continuar <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>

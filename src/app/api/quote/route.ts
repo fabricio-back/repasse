@@ -77,8 +77,9 @@ export async function POST(req: Request) {
     // 4. Salvar lead no Supabase (não bloqueia se não configurado)
     let leadId: string | null = null;
     if (!supabase) {
-      console.warn('⚠️ Supabase não configurado. Lead não salvo.');
+      console.warn('⚠️ [Supabase] Cliente não inicializado — verifique NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY');
     } else {
+      console.log('🔄 [Supabase] Tentando salvar lead...', { nome, telefone, placa, km, cidade, modelo, ano, valorFipe, valorProposta });
       try {
         const { data: leadData, error: leadError } = await supabase
           .from('leads')
@@ -98,13 +99,18 @@ export async function POST(req: Request) {
           .single();
 
         if (leadError) {
-          console.error('⚠️ Erro ao salvar lead no Supabase:', leadError.message);
+          console.error('❌ [Supabase] Erro ao salvar lead:', {
+            message: leadError.message,
+            code: leadError.code,
+            details: leadError.details,
+            hint: leadError.hint,
+          });
         } else {
           leadId = leadData.id;
-          console.log('✅ Lead salvo no Supabase:', leadId);
+          console.log('✅ [Supabase] Lead salvo com sucesso! ID:', leadId);
         }
-      } catch (dbErr) {
-        console.error('⚠️ Supabase indisponível:', dbErr);
+      } catch (dbErr: any) {
+        console.error('❌ [Supabase] Exceção ao salvar lead:', dbErr?.message || dbErr);
       }
     }
 
