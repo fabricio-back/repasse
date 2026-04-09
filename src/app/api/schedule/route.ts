@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
+import { supabase } from '@/lib/supabase';
 
 interface ScheduleRequest {
   startIso: string;
@@ -13,7 +14,9 @@ interface ScheduleRequest {
   placa?: string;
   valorFipe?: number;
   valorProposta?: number;
+  leadId?: string;
 }
+
 
 const getCalendarAuth = () => {
   let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
@@ -55,7 +58,7 @@ const getCalendarAuth = () => {
 export async function POST(req: Request) {
   try {
     const body: ScheduleRequest = await req.json();
-    const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, valorFipe, valorProposta } = body;
+    const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, valorFipe, valorProposta, leadId } = body;
 
     // Formatação de valores
     const formatCurrency = (value?: number) => {
@@ -79,6 +82,25 @@ export async function POST(req: Request) {
         phone,
         slot: readableSlot
       });
+
+      // Atualiza lead no Supabase mesmo sem Google Calendar
+      if (leadId) {
+        try {
+          await supabase
+            .from('leads')
+            .update({
+              email,
+              data_agendamento: startIso,
+              readable_slot: readableSlot,
+              google_event_id: `mock-${Date.now()}`,
+              status: 'agendado',
+            })
+            .eq('id', leadId);
+          console.log('✅ Lead atualizado no Supabase (mock):', leadId);
+        } catch (dbErr) {
+          console.error('⚠️ Erro ao atualizar lead no Supabase:', dbErr);
+        }
+      }
 
       return NextResponse.json({
         ok: true,
@@ -171,6 +193,25 @@ export async function POST(req: Request) {
       start: startIso,
       end: endIso
     });
+
+    // Atualiza lead no Supabase com os dados do agendamento
+    if (leadId) {
+      try {
+        await supabase
+          .from('leads')
+          .update({
+            email,
+            data_agendamento: startIso,
+            readable_slot: readableSlot,
+            google_event_id: response.data.id,
+            status: 'agendado',
+          })
+          .eq('id', leadId);
+        console.log('✅ Lead atualizado no Supabase:', leadId);
+      } catch (dbErr) {
+        console.error('⚠️ Erro ao atualizar lead no Supabase:', dbErr);
+      }
+    }
 
     return NextResponse.json({
       ok: true,

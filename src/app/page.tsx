@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
@@ -90,7 +90,7 @@ interface DayData {
 
 // --- COMPONENTE DE AGENDAMENTO ---
 const Scheduling = ({ customerData, quoteData, onSuccess }: { 
-  customerData: { name: string; plate: string; km: string; modelo?: string };
+  customerData: { name: string; phone: string; plate: string; km: string; modelo?: string; leadId?: string };
   quoteData?: { valorFipe: number; valorProposta: number };
   onSuccess: () => void;
 }) => {
@@ -98,8 +98,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   const [isLoadingSlots, setIsLoadingSlots] = useState(true);
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
-  const [formData, setFormData] = useState({ email: '', phone: '' });
-  const [formErrors, setFormErrors] = useState({ email: '', phone: '' });
+  const [formData, setFormData] = useState({ email: '' });
+  const [formErrors, setFormErrors] = useState({ email: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: string; text: string; scheduledDate?: string; scheduledTime?: string } | null>(null);
 
@@ -206,7 +206,7 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
   }, [selectedDay]);
 
   const validateForm = () => {
-    const errors = { email: '', phone: '' };
+    const errors = { email: '' };
     
     if (!formData.email.trim()) {
       errors.email = 'Email é obrigatório';
@@ -214,14 +214,8 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       errors.email = 'Email inválido';
     }
     
-    if (!formData.phone.trim()) {
-      errors.phone = 'Telefone é obrigatório';
-    } else if (formData.phone.replace(/\D/g, '').length < 10) {
-      errors.phone = 'Telefone inválido';
-    }
-    
     setFormErrors(errors);
-    return !errors.email && !errors.phone;
+    return !errors.email;
   };
 
   const handleSubmit = async () => {
@@ -239,12 +233,13 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
           endIso: selectedSlot.end,
           name: customerData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: customerData.phone,
           readableSlot: `${selectedDay?.date.toLocaleDateString('pt-BR')} ${selectedSlot.display}`,
           modelo: customerData.modelo || '',
           placa: customerData.plate,
           valorFipe: quoteData?.valorFipe,
-          valorProposta: quoteData?.valorProposta
+          valorProposta: quoteData?.valorProposta,
+          leadId: customerData.leadId,
         })
       });
 
@@ -438,31 +433,6 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
               {formErrors.email && <span className="text-xs text-red-400 mt-1">{formErrors.email}</span>}
             </div>
 
-            <div>
-              <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider ml-1 block mb-2">
-                Telefone *
-              </label>
-              <input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                value={formData.phone}
-                onChange={(e) => {
-                  setFormData({ ...formData, phone: e.target.value });
-                  setFormErrors({ ...formErrors, phone: '' });
-                }}
-                className={cn(
-                  "w-full bg-neutral-900/50 border rounded-lg px-4 py-3.5 text-neutral-200 placeholder:text-neutral-700 focus:outline-none focus:border-neutral-600 focus:ring-1 focus:ring-neutral-600 transition-all",
-                  formErrors.phone && "border-red-500"
-                )}
-                style={{ fontSize: '16px' }}
-                placeholder="(11) 99999-9999"
-                aria-label="Seu telefone"
-                aria-invalid={!!formErrors.phone}
-              />
-              {formErrors.phone && <span className="text-xs text-red-400 mt-1">{formErrors.phone}</span>}
-            </div>
-
             <Button
               variant="success"
               onClick={handleSubmit}
@@ -549,6 +519,7 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [loadingText, setLoadingText] = useState("");
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [showCounterOffer, setShowCounterOffer] = useState(false);
   const [counterOfferData, setCounterOfferData] = useState({ value: "" });
@@ -556,6 +527,7 @@ export default function Home() {
   
   const [formData, setFormData] = useState({
     name: "",
+    phone: "",
     plate: "",
     km: "",
     city: ""
@@ -596,7 +568,7 @@ export default function Home() {
   };
 
   const processQuote = async () => {
-    setStep(4); // Loading Screen
+    setStep(5); // Loading Screen
     setError("");
     
     const steps = ["Conectando aos parceiros...", "Consultando Tabela FIPE...", "Analisando histórico...", "Calculando depreciação..."];
@@ -616,7 +588,9 @@ export default function Home() {
         body: JSON.stringify({
           placa: formData.plate,
           km: parseInt(formData.km),
-          nome: formData.name
+          nome: formData.name,
+          telefone: formData.phone,
+          cidade: formData.city,
         })
       });
 
@@ -632,12 +606,13 @@ export default function Home() {
         console.log('⚠️ Usando dados mockados. Configure FIPE_API_KEY para dados reais.');
       }
 
+      if (data.leadId) setLeadId(data.leadId);
       setQuote(data);
-      setStep(5); // Result Screen
+      setStep(6); // Result Screen
     } catch (err: any) {
       console.error('Erro ao processar cotação:', err);
       setError(err.message || 'Erro ao gerar cotação. Tente novamente.');
-      setStep(3); // Volta para o step 3
+      setStep(4); // Volta para o step 4
     }
   };
 
@@ -895,11 +870,11 @@ export default function Home() {
             <div className="relative bg-neutral-900/20 backdrop-blur-sm border border-neutral-800 rounded-2xl p-6 md:p-10 shadow-2xl overflow-hidden min-h-[400px] flex flex-col justify-center">
           
           {/* Progress Bar Sutil */}
-          {step < 6 && (
+          {step < 7 && (
             <div className="absolute top-0 left-0 h-1 bg-neutral-800 w-full">
               <div 
                 className="h-full bg-white transition-all duration-700 ease-out"
-                style={{ width: `${(step / 5) * 100}%` }}
+                style={{ width: `${(step / 6) * 100}%` }}
               />
             </div>
           )}
@@ -930,8 +905,32 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 2: VEHICLE */}
+          {/* STEP 2: PHONE */}
           {step === 2 && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
+              <h2 className="text-xl font-light text-white">Qual o seu WhatsApp, {formData.name.split(' ')[0]}?</h2>
+              <Input 
+                label="Telefone / WhatsApp" 
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="(51) 99999-9999" 
+                value={formData.phone}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('phone', e.target.value)}
+                autoFocus
+                aria-label="Telefone ou WhatsApp"
+              />
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={handleBack}><ChevronLeft className="w-4 h-4"/></Button>
+                <Button onClick={handleNext} disabled={formData.phone.replace(/\D/g, '').length < 10}>
+                  Continuar <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: VEHICLE */}
+          {step === 3 && (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
               <h2 className="text-xl font-light text-white">Qual carro vamos avaliar?</h2>
               <div className="relative">
@@ -969,8 +968,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 3: DETAILS */}
-          {step === 3 && (
+          {/* STEP 4: DETAILS */}
+          {step === 4 && (
             <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
               <h2 className="text-xl font-light text-white">Quase lá. Detalhes finais.</h2>
               
@@ -1009,8 +1008,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 4: LOADING */}
-          {step === 4 && (
+          {/* STEP 5: LOADING */}
+          {step === 5 && (
             <div className="flex flex-col items-center justify-center py-10 animate-in fade-in duration-700">
               <div className="relative">
                 <div className="absolute inset-0 bg-amber-500 blur-xl opacity-20 rounded-full"></div>
@@ -1022,8 +1021,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 5: PROPOSAL */}
-          {step === 5 && quote && (
+          {/* STEP 6: PROPOSAL */}
+          {step === 6 && quote && (
             <div className="animate-in fade-in zoom-in duration-500">
               {quote.mock && (
                 <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-900/50 rounded-lg text-yellow-400 text-xs">
@@ -1061,7 +1060,7 @@ export default function Home() {
                 <Button variant="danger" onClick={() => setShowCounterOffer(!showCounterOffer)}>
                   {showCounterOffer ? "Cancelar" : "Recusar Oferta"}
                 </Button>
-                <Button variant="success" onClick={() => setStep(6)}>
+                <Button variant="success" onClick={() => setStep(7)}>
                   Aceitar e Agendar
                 </Button>
               </div>
@@ -1084,7 +1083,7 @@ export default function Home() {
                       />
                     </div>
                     <a
-                      href={`https://api.whatsapp.com/send/?phone=555194221187&text=Olá!%20Recebi%20uma%20proposta%20para%20meu%20veículo%20mas%20gostaria%20de%20fazer%20uma%20contraproposta.%0A%0A👤%20Nome:%20${encodeURIComponent(formData.name)}%0A🚗%20Veículo:%20${encodeURIComponent(quote?.modelo || '')}%0A📅%20Ano:%20${quote?.ano || ''}%0A🔢%20Placa:%20${formData.plate}%0A%0A💰%20Valor%20proposto%20por%20vocês:%20${encodeURIComponent(formatCurrency(quote?.valorProposta || 0))}%0A💵%20Valor%20que%20eu%20aceito:%20${encodeURIComponent(counterOfferData.value)}`}
+                      href={`https://api.whatsapp.com/send/?phone=555194221187&text=Olá!%20Recebi%20uma%20proposta%20para%20meu%20veículo%20mas%20gostaria%20de%20fazer%20uma%20contraproposta.%0A%0A👤%20Nome:%20${encodeURIComponent(formData.name)}%0A📱%20Telefone:%20${encodeURIComponent(formData.phone)}%0A🚗%20Veículo:%20${encodeURIComponent(quote?.modelo || '')}%0A📅%20Ano:%20${quote?.ano || ''}%0A🔢%20Placa:%20${formData.plate}%0A%0A💰%20Valor%20proposto%20por%20vocês:%20${encodeURIComponent(formatCurrency(quote?.valorProposta || 0))}%0A💵%20Valor%20que%20eu%20aceito:%20${encodeURIComponent(counterOfferData.value)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
@@ -1117,14 +1116,16 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 6: SCHEDULING */}
-          {step === 6 && (
+          {/* STEP 7: SCHEDULING */}
+          {step === 7 && (
             <Scheduling 
               customerData={{
                 name: formData.name,
+                phone: formData.phone,
                 plate: formData.plate,
                 km: formData.km,
-                modelo: quote?.modelo
+                modelo: quote?.modelo,
+                leadId: leadId ?? undefined,
               }}
               quoteData={quote ? {
                 valorFipe: quote.valorFipe,
@@ -1133,8 +1134,9 @@ export default function Home() {
               onSuccess={() => {
                 alert(`✅ Vistoria agendada com sucesso!\n\nVerifique seu email para detalhes do agendamento.`);
                 setStep(1);
-                setFormData({ name: "", plate: "", km: "", city: "" });
+                setFormData({ name: "", phone: "", plate: "", km: "", city: "" });
                 setQuote(null);
+                setLeadId(null);
               }}
             />
           )}
