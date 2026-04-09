@@ -8,13 +8,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { nome, telefone } = body;
 
+    console.log('🆕 [LEAD] Criando novo lead:', { nome, telefone });
+
     if (!nome || !telefone) {
+      console.error('❌ [LEAD] Dados incompletos');
       return NextResponse.json({ error: 'nome e telefone são obrigatórios' }, { status: 400 });
     }
 
     const supabase = await createClient();
 
-    console.log('🔄 [Supabase] Criando lead...', { nome, telefone });
+    console.log('� [LEAD/Supabase] Inserindo lead na tabela leads...');
 
     const { data, error } = await supabase
       .from('leads')
@@ -23,20 +26,22 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error('❌ [Supabase] Erro ao criar lead:', {
+      console.error('❌ [LEAD/Supabase] Erro ao criar lead:', {
         message: error.message,
         code: error.code,
         hint: error.hint,
+        details: error.details
       });
       // Retorna 200 para não quebrar o fluxo do usuário
       return NextResponse.json({ ok: false, error: error.message, leadId: null });
     }
 
-    console.log('✅ [Supabase] Lead criado! ID:', data.id);
+    console.log('✅ [LEAD/Supabase] Lead criado com sucesso! ID:', data.id);
     return NextResponse.json({ ok: true, leadId: data.id });
 
   } catch (err: any) {
-    console.error('❌ [Supabase] Exceção no POST /api/lead:', err?.message || err);
+    console.error('❌ [LEAD/Supabase] Exceção no POST:', err?.message || err);
+    console.error('Stack trace:', err?.stack);
     return NextResponse.json({ ok: false, error: err.message, leadId: null });
   }
 }
@@ -47,13 +52,16 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const { leadId, ...fields } = body;
 
+    console.log('🔄 [LEAD] Atualizando lead:', leadId, 'com campos:', Object.keys(fields).join(', '));
+
     if (!leadId) {
+      console.error('❌ [LEAD] LeadId não fornecido');
       return NextResponse.json({ error: 'leadId é obrigatório' }, { status: 400 });
     }
 
     const supabase = await createClient();
 
-    console.log('🔄 [Supabase] Atualizando lead', leadId, 'com campos:', fields);
+    console.log('� [LEAD/Supabase] Executando UPDATE na tabela leads...');
 
     const { error } = await supabase
       .from('leads')
@@ -61,19 +69,23 @@ export async function PATCH(req: Request) {
       .eq('id', leadId);
 
     if (error) {
-      console.error('❌ [Supabase] Erro ao atualizar lead:', {
+      console.error('❌ [LEAD/Supabase] Erro ao atualizar:', {
+        leadId,
         message: error.message,
         code: error.code,
         hint: error.hint,
+        details: error.details
       });
       return NextResponse.json({ ok: false, error: error.message });
     }
 
-    console.log('✅ [Supabase] Lead atualizado com sucesso!', leadId);
+    console.log('✅ [LEAD/Supabase] Lead atualizado com sucesso!', leadId);
+    console.log('📝 [LEAD/Supabase] Campos atualizados:', Object.keys(fields).join(', '));
     return NextResponse.json({ ok: true });
 
   } catch (err: any) {
-    console.error('❌ [Supabase] Exceção no PATCH /api/lead:', err?.message || err);
+    console.error('❌ [LEAD/Supabase] Exceção no PATCH:', err?.message || err);
+    console.error('Stack trace:', err?.stack);
     return NextResponse.json({ ok: false, error: err.message });
   }
 }

@@ -15,8 +15,11 @@ export async function POST(req: Request) {
     const body: RequestBody = await req.json();
     const { placa, km, nome, telefone, cidade, leadId: incomingLeadId } = body;
 
+    console.log('🚗 [QUOTE] Iniciando cotação:', { placa, km, nome, telefone, cidade, leadId: incomingLeadId });
+
     // 1. Validação Básica
     if (!placa || !km) {
+      console.error('❌ [QUOTE] Dados incompletos');
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
 
@@ -29,7 +32,8 @@ export async function POST(req: Request) {
 
     // MODO DESENVOLVIMENTO: Se não houver API key, usa dados mockados
     if (!apiKey || apiKey === 'your_api_key_here') {
-      console.log('⚠️ FIPE_API_KEY não configurada. Usando dados mockados para desenvolvimento.');
+      console.log('⚠️ [QUOTE] FIPE_API_KEY não configurada. Usando dados mockados para desenvolvimento.');
+      console.log('⏳ [QUOTE] Simulando chamada à API FIPE...');
 
       await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -45,8 +49,11 @@ export async function POST(req: Request) {
       ano = mockData.data.veiculo.ano.split('/')[0];
       isMock = true;
 
+      console.log('📊 [QUOTE] Dados FIPE (Mock):', { modelo, ano, valorFipe });
+
     } else {
       // MODO PRODUÇÃO: Consulta real na API
+      console.log('📡 [QUOTE] Consultando API FIPE real...');
       const fipeResponse = await fetch(
         `https://placas.fipeapi.com.br/placas/${placa}?key=${apiKey}`
       );
@@ -69,17 +76,26 @@ export async function POST(req: Request) {
       valorFipe = fipeInfo.valor;
       modelo = fipeInfo.marca_modelo || veiculo.marca_modelo;
       ano = veiculo.ano ? veiculo.ano.split('/')[0] : 'N/A';
+
+      console.log('📊 [QUOTE] Dados FIPE (Real):', { modelo, ano, valorFipe });
     }
 
     // 3. Algoritmo de Precificação
     const descontoFixo = 0.18;
     const valorProposta = Math.floor(valorFipe * (1 - descontoFixo));
+    
+    console.log('💰 [QUOTE] Precificação:', { valorFipe, descontoFixo, valorProposta });
 
     // 4. Atualizar/criar lead no Supabase com dados da FIPE
     let leadId: string | null = incomingLeadId ?? null;
+    console.log('💾 [QUOTE] Iniciando salvamento no Supabase. LeadId recebido:', leadId);
+    
     const supabase = await createClient();
     
     const fipeFields = {
+      placa,
+      km,
+      cidade,
       modelo,
       ano,
       valor_fipe: valorFipe,
@@ -90,16 +106,23 @@ export async function POST(req: Request) {
     try {
       if (leadId) {
         // Lead já existe (criado progressivamente) → apenas atualiza com dados da FIPE
-        console.log('🔄 [Supabase] Atualizando lead existente com FIPE...', leadId, fipeFields);
+        console.log('🔄 [QUOTE/Supabase] Atualizando lead', leadId, 'com campos:', fipeFields);
         const { error } = await supabase.from('leads').update(fipeFields).eq('id', leadId);
         if (error) {
-          console.error('❌ [Supabase] Erro ao atualizar lead com FIPE:', error.message);
+          console.error('❌ [QUOTE/Supabase] Erro ao atualizar lead:', {
+            leadId,
+            message: error.message,
+            code: error.code,
+            details: error.details
+          });
         } else {
-          console.log('✅ [Supabase] Lead atualizado com FIPE! ID:', leadId);
+          console.log('✅ [QUOTE/Supabase] Lead atualizado com sucesso! ID:', leadId);
+          console.log('📝 [QUOTE/Supabase] Campos salvos:', Object.keys(fipeFields).join(', '));
         }
       } else {
         // Fallback: cria o lead completo de uma vez (sem salvamento progressivo)
-        console.log('🔄 [Supabase] Criando lead completo (fallback)...', { nome, telefone, placa, km, cidade });
+        console.log('🆕 [QUOTE/Supabase] LeadId não fornecido. Criando novo lead completo...');
+        console.log('📋 [QUOTE/Supabase] Dados para criação:', { nome, telefone, placa, km, cidade, ...fipeFields });
         const { data: leadData, error: leadError } = await supabase
           .from('leads')
           .insert({ nome, telefone, placa, km, cidade, ...fipeFields })
@@ -107,15 +130,23 @@ export async function POST(req: Request) {
           .single();
 
         if (leadError) {
-          console.error('❌ [Supabase] Erro ao criar lead:', { message: leadError.message, code: leadError.code, hint: leadError.hint });
+          console.error('❌ [QUOTE/Supabase] Erro ao criar lead:', {
+            message: leadError.message,
+            code: leadError.code,
+            hint: leadError.hint,
+            details: leadError.details
+          });
         } else {
           leadId = leadData.id;
-          console.log('✅ [Supabase] Lead criado com sucesso! ID:', leadId);
+          console.log('✅ [QUOTE/Supabase] Lead criado com sucesso! ID:', leadId);
         }
       }
     } catch (dbErr: any) {
-      console.error('❌ [Supabase] Exceção:', dbErr?.message || dbErr);
+      console.error('❌ [QUOTE/Supabase] Exceção ao salvar:', dbErr?.message || dbErr);
+      console.error('Stack trace:', dbErr?.stack);
     }
+
+    console.log('✅ [QUOTE] Cotação finalizada. Retornando resultado:', { leadId, modelo, ano, valorFipe, valorProposta });
 
     return NextResponse.json({
       sucesso: true,

@@ -60,6 +60,17 @@ export async function POST(req: Request) {
     const body: ScheduleRequest = await req.json();
     const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, valorFipe, valorProposta, leadId } = body;
 
+    console.log('📅 [SCHEDULE] Iniciando agendamento:', {
+      leadId,
+      name,
+      email,
+      phone,
+      slot: readableSlot,
+      start: startIso,
+      modelo,
+      placa
+    });
+
     // Formatação de valores
     const formatCurrency = (value?: number) => {
       if (!value) return 'N/A';
@@ -68,6 +79,7 @@ export async function POST(req: Request) {
 
     // Validação básica
     if (!startIso || !endIso || !name || !email || !phone) {
+      console.error('❌ [SCHEDULE] Dados incompletos:', { startIso: !!startIso, endIso: !!endIso, name: !!name, email: !!email, phone: !!phone });
       return NextResponse.json(
         { ok: false, error: 'Dados incompletos' },
         { status: 400 }
@@ -86,21 +98,32 @@ export async function POST(req: Request) {
       // Atualiza lead no Supabase mesmo sem Google Calendar
       if (leadId) {
         try {
+          console.log('💾 [SCHEDULE] Atualizando lead no Supabase (modo mock)...', leadId);
           const supabase = await createClient();
-          await supabase
+          const updateData = {
+            email,
+            data_agendamento: startIso,
+            readable_slot: readableSlot,
+            google_event_id: `mock-${Date.now()}`,
+            status: 'agendado',
+          };
+          
+          const { error } = await supabase
             .from('leads')
-            .update({
-              email,
-              data_agendamento: startIso,
-              readable_slot: readableSlot,
-              google_event_id: `mock-${Date.now()}`,
-              status: 'agendado',
-            })
+            .update(updateData)
             .eq('id', leadId);
-          console.log('✅ Lead atualizado no Supabase (mock):', leadId);
+            
+          if (error) {
+            console.error('❌ [SCHEDULE/Supabase] Erro ao atualizar:', error);
+          } else {
+            console.log('✅ [SCHEDULE/Supabase] Lead atualizado com sucesso (mock):', leadId);
+            console.log('📝 [SCHEDULE/Supabase] Dados salvos:', Object.keys(updateData).join(', '));
+          }
         } catch (dbErr) {
-          console.error('⚠️ Erro ao atualizar lead no Supabase:', dbErr);
+          console.error('❌ [SCHEDULE/Supabase] Exceção:', dbErr);
         }
+      } else {
+        console.warn('⚠️ [SCHEDULE] LeadId não fornecido. Agendamento não será salvo.');
       }
 
       return NextResponse.json({
@@ -198,21 +221,32 @@ export async function POST(req: Request) {
     // Atualiza lead no Supabase com os dados do agendamento
     if (leadId) {
       try {
+        console.log('💾 [SCHEDULE] Atualizando lead no Supabase...', leadId);
         const supabase = await createClient();
-        await supabase
+        const updateData = {
+          email,
+          data_agendamento: startIso,
+          readable_slot: readableSlot,
+          google_event_id: response.data.id,
+          status: 'agendado',
+        };
+        
+        const { error } = await supabase
           .from('leads')
-          .update({
-            email,
-            data_agendamento: startIso,
-            readable_slot: readableSlot,
-            google_event_id: response.data.id,
-            status: 'agendado',
-          })
+          .update(updateData)
           .eq('id', leadId);
-        console.log('✅ Lead atualizado no Supabase:', leadId);
+          
+        if (error) {
+          console.error('❌ [SCHEDULE/Supabase] Erro ao atualizar:', error);
+        } else {
+          console.log('✅ [SCHEDULE/Supabase] Lead atualizado com sucesso:', leadId);
+          console.log('📝 [SCHEDULE/Supabase] Dados salvos:', Object.keys(updateData).join(', '));
+        }
       } catch (dbErr) {
-        console.error('⚠️ Erro ao atualizar lead no Supabase:', dbErr);
+        console.error('❌ [SCHEDULE/Supabase] Exceção:', dbErr);
       }
+    } else {
+      console.warn('⚠️ [SCHEDULE] LeadId não fornecido. Agendamento não será salvo.');
     }
 
     return NextResponse.json({
