@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       });
 
       // Atualiza lead no Supabase mesmo sem Google Calendar
-      if (leadId) {
+      if (supabase && leadId) {
         try {
           await supabase
             .from('leads')
@@ -195,7 +195,7 @@ export async function POST(req: Request) {
     });
 
     // Atualiza lead no Supabase com os dados do agendamento
-    if (leadId) {
+    if (supabase && leadId) {
       try {
         await supabase
           .from('leads')

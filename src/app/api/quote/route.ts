@@ -99,34 +99,36 @@ export async function POST(req: Request) {
 
     // 4. Salvar lead no Supabase
     let leadId: string | null = null;
-    try {
-      const { data: leadData, error: leadError } = await supabase
-        .from('leads')
-        .insert({
-          nome,
-          telefone,
-          placa,
-          km,
-          cidade,
-          modelo,
-          ano,
-          valor_fipe: valorFipe,
-          valor_proposta: valorProposta,
-          status: 'cotacao_visualizada',
-        })
-        .select('id')
-        .single();
+    if (!supabase) {
+      console.warn('⚠️ Supabase não configurado (NEXT_PUBLIC_SUPABASE_URL ausente). Lead não salvo.');
+    } else {
+      try {
+        const { data: leadData, error: leadError } = await supabase
+          .from('leads')
+          .insert({
+            nome,
+            telefone,
+            placa,
+            km,
+            cidade,
+            modelo,
+            ano,
+            valor_fipe: valorFipe,
+            valor_proposta: valorProposta,
+            status: 'cotacao_visualizada',
+          })
+          .select('id')
+          .single();
 
-      if (leadError) {
-        console.error('⚠️ Erro ao salvar lead no Supabase:', leadError.message);
-      } else {
-        leadId = leadData.id;
-        console.log('✅ Lead salvo no Supabase:', leadId);
+        if (leadError) {
+          console.error('⚠️ Erro ao salvar lead no Supabase:', leadError.message);
+        } else {
+          leadId = leadData.id;
+          console.log('✅ Lead salvo no Supabase:', leadId);
+        }
+      } catch (dbErr) {
+        console.error('⚠️ Supabase indisponível:', dbErr);
       }
-    } catch (dbErr) {
-      // Não bloqueia o fluxo do usuário se o Supabase falhar
-      console.error('⚠️ Supabase indisponível:', dbErr);
-    }
 
     return NextResponse.json({
       sucesso: true,
