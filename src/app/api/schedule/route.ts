@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { createClient } from '@/lib/supabase/server';
+import { notifySistemaRS } from '@/lib/sistemaRS';
 
 interface ScheduleRequest {
   startIso: string;
@@ -126,6 +127,20 @@ export async function POST(req: Request) {
         console.warn('⚠️ [SCHEDULE] LeadId não fornecido. Agendamento não será salvo.');
       }
 
+      await notifySistemaRS({
+        phone,
+        name,
+        requestedStatus: 'SCHEDULED',
+        vehicleDetails: { modelo, placa, valorFipe, valorProposta },
+        metadata: {
+          source: 'landing-page',
+          email,
+          dataAgendamento: startIso,
+          horarioLegivel: readableSlot,
+          googleEventId: `mock-${Date.now()}`,
+        },
+      });
+
       return NextResponse.json({
         ok: true,
         mock: true,
@@ -248,6 +263,20 @@ export async function POST(req: Request) {
     } else {
       console.warn('⚠️ [SCHEDULE] LeadId não fornecido. Agendamento não será salvo.');
     }
+
+    await notifySistemaRS({
+      phone,
+      name,
+      requestedStatus: 'SCHEDULED',
+      vehicleDetails: { modelo, placa, valorFipe, valorProposta },
+      metadata: {
+        source: 'landing-page',
+        email,
+        dataAgendamento: startIso,
+        horarioLegivel: readableSlot,
+        googleEventId: response.data.id,
+      },
+    });
 
     return NextResponse.json({
       ok: true,

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { notifySistemaRS } from '@/lib/sistemaRS';
 
 // POST: cria o lead com nome + telefone (step 2)
 // PATCH: atualiza o lead existente com novos campos
@@ -37,6 +38,14 @@ export async function POST(req: Request) {
     }
 
     console.log('✅ [LEAD/Supabase] Lead criado com sucesso! ID:', data.id);
+
+    await notifySistemaRS({
+      phone: telefone,
+      name: nome,
+      requestedStatus: 'NEW_LEAD',
+      metadata: { source: 'landing-page' },
+    });
+
     return NextResponse.json({ ok: true, leadId: data.id });
 
   } catch (err: any) {

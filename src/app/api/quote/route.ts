@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { notifySistemaRS } from '@/lib/sistemaRS';
 
 interface RequestBody {
   placa: string;
@@ -147,6 +148,22 @@ export async function POST(req: Request) {
     }
 
     console.log('✅ [QUOTE] Cotação finalizada. Retornando resultado:', { leadId, modelo, ano, valorFipe, valorProposta });
+
+    await notifySistemaRS({
+      phone: telefone,
+      name: nome,
+      requestedStatus: 'COUNTER_OFFER',
+      vehicleDetails: {
+        placa,
+        km,
+        cidade,
+        modelo,
+        ano,
+        valorFipe,
+        valorProposta,
+      },
+      metadata: { source: 'landing-page' },
+    });
 
     return NextResponse.json({
       sucesso: true,
