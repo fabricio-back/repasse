@@ -72,6 +72,133 @@ const Button = ({
   );
 };
 
+// --- NAVBAR ---
+const Navbar = () => (
+  <nav className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-900">
+    <div className="container mx-auto px-4 max-w-6xl">
+      <div className="flex items-center justify-between h-14 md:h-16">
+        <a href="/" className="flex items-center shrink-0">
+          <img src="/logo-repasse.png" alt="Repasse Auto RS" className="h-7 md:h-9 w-auto" />
+        </a>
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#seguranca" className="text-sm text-neutral-400 hover:text-white transition-colors">Como Funciona</a>
+          <a href="#seguranca" className="text-sm text-neutral-400 hover:text-white transition-colors">Segurança</a>
+          <a href="#cotacao" className="text-sm text-neutral-400 hover:text-white transition-colors">Avaliação</a>
+        </div>
+        <a href="#cotacao" className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-neutral-950 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+          Avaliar Meu Carro
+        </a>
+      </div>
+    </div>
+  </nav>
+);
+
+// --- BANNER CAROUSEL ---
+const bannerSlides = [
+  {
+    badge: '⚡ Mais rápido do mercado',
+    title: 'Venda seu carro em até 50 minutos',
+    subtitle: 'Do contato à assinatura — tudo em tempo recorde, sem burocracia',
+    cta: 'Avaliar Meu Carro Agora',
+    bg: 'from-amber-950/60 via-neutral-950 to-neutral-950',
+    accent: 'text-amber-400',
+    border: 'border-amber-500/30',
+    dot: 'bg-amber-500',
+  },
+  {
+    badge: '🛡️ 100% seguro e privado',
+    title: 'Seus dados nunca ficam expostos',
+    subtitle: 'Compradores não têm acesso ao seu contato — intermediamos tudo',
+    cta: 'Quero Vender com Segurança',
+    bg: 'from-blue-950/60 via-neutral-950 to-neutral-950',
+    accent: 'text-blue-400',
+    border: 'border-blue-500/30',
+    dot: 'bg-blue-500',
+  },
+  {
+    badge: '💰 Proposta baseada na FIPE',
+    title: 'Valor justo pelo seu carro',
+    subtitle: 'Sem leilão, sem depreciação forçada — receba o que seu carro realmente vale',
+    cta: 'Ver Minha Proposta',
+    bg: 'from-green-950/60 via-neutral-950 to-neutral-950',
+    accent: 'text-green-400',
+    border: 'border-green-500/30',
+    dot: 'bg-green-500',
+  },
+];
+
+const BannerCarousel = () => {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent(prev => (prev + 1) % bannerSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = bannerSlides[current];
+
+  return (
+    <div className="relative w-full overflow-hidden bg-neutral-950">
+      <div
+        className={`relative w-full bg-gradient-to-r ${slide.bg} transition-all duration-700`}
+        style={{ minHeight: '280px' }}
+      >
+        {/* Decorative grid */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+        <div className="relative container mx-auto px-6 py-12 md:py-16 max-w-6xl flex flex-col items-center text-center gap-4">
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900/80 border ${slide.border}`}>
+            <span className={`text-xs font-semibold tracking-widest uppercase ${slide.accent}`}>{slide.badge}</span>
+          </div>
+
+          <h2 className="text-2xl md:text-4xl font-light text-white tracking-tight leading-tight max-w-2xl">
+            {slide.title}
+          </h2>
+
+          <p className="text-neutral-400 text-base md:text-lg max-w-xl">{slide.subtitle}</p>
+
+          <a
+            href="#cotacao"
+            className="mt-2 px-7 py-3 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold rounded-lg transition-all text-sm shadow-lg hover:shadow-amber-500/30"
+          >
+            {slide.cta}
+          </a>
+        </div>
+
+        {/* Arrows */}
+        <button
+          onClick={() => setCurrent(p => (p - 1 + bannerSlides.length) % bannerSlides.length)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800/70 hover:bg-neutral-700 text-white transition-colors"
+          aria-label="Banner anterior"
+        >
+          ‹
+        </button>
+        <button
+          onClick={() => setCurrent(p => (p + 1) % bannerSlides.length)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800/70 hover:bg-neutral-700 text-white transition-colors"
+          aria-label="Próximo banner"
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Dots */}
+      <div className="flex items-center justify-center gap-2 py-3 bg-neutral-950">
+        {bannerSlides.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            aria-label={`Ir para slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? `w-6 ${s.dot}` : 'w-1.5 bg-neutral-700'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // --- TIPOS AGENDAMENTO ---
 interface AvailableSlot {
   start: string;
@@ -674,14 +801,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-neutral-800 selection:text-white">
-      
+
+      {/* Navbar fixa */}
+      <Navbar />
+
+      {/* Banner Carousel — logo abaixo do navbar */}
+      <div className="pt-14 md:pt-16">
+        <BannerCarousel />
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-neutral-900">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-950/10 to-transparent pointer-events-none"></div>
-        <div className="container mx-auto px-6 sm:px-4 py-16 md:py-24 max-w-6xl">
-          <div className="flex justify-center mb-8">
-            <img src="/logo-repasse.png" alt="Repasse Auto RS - Compra e venda de veículos usados em Porto Alegre e região" className="h-16 md:h-20 w-auto" loading="eager" width="auto" height="80" />
-          </div>
+        <div className="container mx-auto px-6 sm:px-4 py-12 md:py-16 max-w-6xl">
           
           <div className="text-center space-y-6 max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-900/20 border border-amber-900/30">
