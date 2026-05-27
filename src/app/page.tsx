@@ -1,11 +1,15 @@
 'use client';
-
-import React, { useState, useEffect, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { 
-  ChevronRight, 
-  Car, 
-  MapPin, 
+                  <a
+                    href={`https://api.whatsapp.com/send/?phone=555194221187&text=${encodeURIComponent(`Olá! Acabei de agendar uma vistoria no Repasse Auto RS.\n\n🚗 Veículo: ${customerData.modelo || 'Não informado'}\n🔢 Placa: ${customerData.plate}\n💰 Valor proposto: ${quoteData ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(quoteData.valorProposta) : 'A consultar'}\n📅 Data: ${submitMessage?.scheduledDate}\n🕐 Horário: ${submitMessage?.scheduledTime}`)}&type=phone_number&app_absent=0`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 hover:bg-green-500 active:scale-95 text-white rounded-xl font-semibold text-base transition-all touch-manipulation shadow-lg"
+                    aria-label="Falar no WhatsApp"
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && window.gtag) {
+                        window.gtag('event', 'conversion', { 'send_to': 'AW-302827508/noH8CNfKrrQcEPSPs5AB' });
+                      }
+                    }}
   Gauge, 
   Loader2, 
   CheckCircle2, 
@@ -269,12 +273,18 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
       });
       const scheduledTime = selectedSlot.display;
 
+
       setSubmitMessage({
         type: 'success',
         text: '',
         scheduledDate,
         scheduledTime
       });
+
+      // Dispara conversão Google Ads ao sucesso do agendamento
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'conversion', { 'send_to': 'AW-302827508/noH8CNfKrrQcEPSPs5AB' });
+      }
 
       // Não redireciona mais automaticamente - usuário pode ver o aviso
     } catch (error: any) {
