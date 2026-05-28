@@ -72,10 +72,12 @@ export async function PATCH(req: Request) {
 
     console.log('� [LEAD/Supabase] Executando UPDATE na tabela leads...');
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('leads')
       .update(fields)
-      .eq('id', leadId);
+      .eq('id', leadId)
+      .select('id')
+      .maybeSingle();
 
     if (error) {
       console.error('❌ [LEAD/Supabase] Erro ao atualizar:', {
@@ -86,6 +88,11 @@ export async function PATCH(req: Request) {
         details: error.details
       });
       return NextResponse.json({ ok: false, error: error.message });
+    }
+
+    if (!data) {
+      console.error('❌ [LEAD/Supabase] Nenhum lead encontrado para atualizar:', leadId);
+      return NextResponse.json({ ok: false, error: 'Lead não encontrado' }, { status: 404 });
     }
 
     console.log('✅ [LEAD/Supabase] Lead atualizado com sucesso!', leadId);

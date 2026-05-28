@@ -1186,21 +1186,44 @@ export default function Home() {
                         }
                         
                         // Salva a contraproposta no Supabase antes de abrir o WhatsApp
-                        if (leadId) {
-                          try {
-                            await fetch('/api/lead', {
-                              method: 'PATCH',
+                        try {
+                          let targetLeadId = leadId;
+
+                          // Fallback: se não houver leadId em memória, cria um novo lead com nome/telefone.
+                          if (!targetLeadId) {
+                            const createRes = await fetch('/api/lead', {
+                              method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ 
-                                leadId, 
-                                valor_contraproposta: counterOfferData.value,
-                                status: 'contraproposta_enviada'
-                              }),
+                              body: JSON.stringify({ nome: formData.name, telefone: formData.phone }),
                             });
-                            console.log('[Lead] Contraproposta salva:', counterOfferData.value);
-                          } catch (err) {
-                            console.warn('[Lead] Erro ao salvar contraproposta:', err);
+                            const createData = await createRes.json();
+
+                            if (!createRes.ok || !createData?.ok || !createData?.leadId) {
+                              throw new Error(createData?.error || 'Não foi possível criar lead para salvar a contraproposta');
+                            }
+
+                            targetLeadId = createData.leadId as string;
+                            setLeadId(targetLeadId);
                           }
+
+                          const patchRes = await fetch('/api/lead', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                              leadId: targetLeadId,
+                              valor_contraproposta: counterOfferData.value,
+                              status: 'contraproposta_enviada'
+                            }),
+                          });
+                          const patchData = await patchRes.json();
+
+                          if (!patchRes.ok || !patchData?.ok) {
+                            throw new Error(patchData?.error || 'Falha ao salvar contraproposta');
+                          }
+
+                          console.log('[Lead] Contraproposta salva:', counterOfferData.value, 'Lead:', targetLeadId);
+                        } catch (err) {
+                          console.warn('[Lead] Erro ao salvar contraproposta:', err);
                         }
                         
                         setShowCounterOffer(false);
