@@ -97,7 +97,7 @@ interface DayData {
 
 // --- COMPONENTE DE AGENDAMENTO ---
 const Scheduling = ({ customerData, quoteData, onSuccess }: { 
-  customerData: { name: string; phone: string; plate: string; km: string; modelo?: string; leadId?: string };
+  customerData: { name: string; phone: string; plate: string; km: string; cidade?: string; ano?: string; modelo?: string; leadId?: string };
   quoteData?: { valorFipe: number; valorProposta: number };
   onSuccess: () => void;
 }) => {
@@ -244,6 +244,9 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
           readableSlot: `${selectedDay?.date.toLocaleDateString('pt-BR')} ${selectedSlot.display}`,
           modelo: customerData.modelo || '',
           placa: customerData.plate,
+          ano: customerData.ano,
+          km: customerData.km ? parseInt(customerData.km) : undefined,
+          cidade: customerData.cidade,
           valorFipe: quoteData?.valorFipe,
           valorProposta: quoteData?.valorProposta,
           leadId: customerData.leadId,
@@ -1258,6 +1261,8 @@ export default function Home() {
                 phone: formData.phone,
                 plate: formData.plate,
                 km: formData.km,
+                cidade: formData.city,
+                ano: quote?.ano?.toString(),
                 modelo: quote?.modelo,
                 leadId: leadId ?? undefined,
               }}

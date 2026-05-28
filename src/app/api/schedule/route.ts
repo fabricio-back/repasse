@@ -13,6 +13,9 @@ interface ScheduleRequest {
   description?: string;
   modelo?: string;
   placa?: string;
+  ano?: string;
+  km?: number;
+  cidade?: string;
   valorFipe?: number;
   valorProposta?: number;
   leadId?: string;
@@ -59,7 +62,7 @@ const getCalendarAuth = () => {
 export async function POST(req: Request) {
   try {
     const body: ScheduleRequest = await req.json();
-    const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, valorFipe, valorProposta, leadId } = body;
+    const { startIso, endIso, name, email, phone, readableSlot, description, modelo, placa, ano, km, cidade, valorFipe, valorProposta, leadId } = body;
 
     console.log('📅 [SCHEDULE] Iniciando agendamento:', {
       leadId,
@@ -131,7 +134,7 @@ export async function POST(req: Request) {
         phone,
         name,
         requestedStatus: 'SCHEDULED',
-        vehicleDetails: { modelo, placa, valorFipe, valorProposta },
+        vehicleDetails: { modelo, placa, ano, km, cidade, valorFipe, valorProposta },
         metadata: {
           source: 'landing-page',
           email,
@@ -268,7 +271,7 @@ export async function POST(req: Request) {
       phone,
       name,
       requestedStatus: 'SCHEDULED',
-      vehicleDetails: { modelo, placa, valorFipe, valorProposta },
+      vehicleDetails: { modelo, placa, ano, km, cidade, valorFipe, valorProposta },
       metadata: {
         source: 'landing-page',
         email,
