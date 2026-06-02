@@ -3,6 +3,7 @@ interface SistemaRSPayload {
   name?: string;
   requestedStatus?: string;
   vehicleDetails?: Record<string, unknown>;
+  valorContraproposta?: string;
   metadata?: Record<string, unknown>;
 }
 

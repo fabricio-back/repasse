@@ -115,6 +115,7 @@ export async function PATCH(req: Request) {
             phone: leadData?.telefone || '',
             name: leadData?.nome,
             requestedStatus: 'COUNTER_OFFER',
+            valorContraproposta: fields.valor_contraproposta,
             vehicleDetails: {
               placa: leadData?.placa,
               km: leadData?.km,
@@ -123,7 +124,6 @@ export async function PATCH(req: Request) {
               ano: leadData?.ano,
               valorFipe: leadData?.valor_fipe,
               valorProposta: leadData?.valor_proposta,
-              valorContraProposta: fields.valor_contraproposta,
             },
             metadata: {
               source: 'landing-page',
