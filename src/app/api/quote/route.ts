@@ -82,10 +82,12 @@ export async function POST(req: Request) {
     }
 
     // 3. Algoritmo de Precificação
-    const descontoFixo = 0.18;
-    const valorProposta = Math.floor(valorFipe * (1 - descontoFixo));
-    
-    console.log('💰 [QUOTE] Precificação:', { valorFipe, descontoFixo, valorProposta });
+    // Desconto base: 20% sobre FIPE + R$2.000 a cada 100.000 km rodados
+    const descontoBase = 0.20;
+    const depreciacaoKm = Math.floor(km / 100000) * 2000;
+    const valorProposta = Math.max(0, Math.floor(valorFipe * (1 - descontoBase)) - depreciacaoKm);
+
+    console.log('💰 [QUOTE] Precificação:', { valorFipe, descontoBase, depreciacaoKm, valorProposta });
 
     // 4. Atualizar/criar lead no Supabase com dados da FIPE
     let leadId: string | null = incomingLeadId ?? null;
