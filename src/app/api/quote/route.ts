@@ -82,9 +82,9 @@ export async function POST(req: Request) {
     }
 
     // 3. Algoritmo de Precificação
-    // Desconto base: 20% sobre FIPE + R$2.000 a cada 100.000 km rodados
-    const descontoBase = 0.20;
-    const depreciacaoKm = Math.floor(km / 100000) * 2000;
+    // Desconto base: 18% sobre FIPE + R$500 a cada 100.000 km rodados
+    const descontoBase = 0.18;
+    const depreciacaoKm = Math.floor(km / 100000) * 500;
     const valorProposta = Math.max(0, Math.floor(valorFipe * (1 - descontoBase)) - depreciacaoKm);
 
     console.log('💰 [QUOTE] Precificação:', { valorFipe, descontoBase, depreciacaoKm, valorProposta });
