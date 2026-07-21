@@ -28,9 +28,9 @@ const getCalendarAuth = () => {
 const WORK_HOURS = {
   morning: { start: 9, end: 12 },
   afternoon: { start: 13, end: 17 },
-  visitDuration: 15, // Duração da vistoria em minutos
+  visitDuration: 30, // Duração da vistoria em minutos
   interval: 0,       // Sem intervalo entre vistorias
-  slotDuration: 15,  // Total por slot (= visitDuration)
+  slotDuration: 30,  // Total por slot (= visitDuration)
 };
 
 // Sábados com atendimento especial (exceto aos fins de semana normais)
