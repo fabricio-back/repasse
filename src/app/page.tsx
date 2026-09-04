@@ -150,11 +150,13 @@ const Scheduling = ({ customerData, quoteData, onSuccess }: {
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
     
-    // Agrupar slots por dia
+    // Agrupar slots por dia — extrai a data direto da string ISO (fuso de São Paulo)
+    // para não depender do fuso horário local do navegador do cliente
     const slotsByDay: Record<string, AvailableSlot[]> = {};
     availableSlots.forEach(slot => {
-      const date = new Date(slot.start);
-      const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const [datePart] = slot.start.split('T');
+      const [y, m, d] = datePart.split('-').map(Number);
+      const dayKey = `${y}-${m - 1}-${d}`;
       if (!slotsByDay[dayKey]) slotsByDay[dayKey] = [];
       slotsByDay[dayKey].push(slot);
     });
